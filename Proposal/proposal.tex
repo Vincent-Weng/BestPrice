@@ -1,6 +1,19 @@
 \documentclass[12pt]{article}
 \usepackage{setspace}
-\usepackage[left=1.5cm, right=1.5cm]{geometry}
+\usepackage{setspace}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage[]{hyperref}
+\usepackage[left=1in, right=1in]{geometry}
+
+
+\titleformat{\part}[hang]{\bfseries\LARGE}{Part\ \thepart.}{0.5em}{}
+\titleformat{\section}[hang]{\bfseries\Large}{\thesection.}{0.5em}{}
+\titleformat{\subsection}[hang]{\bfseries\large}{\thesubsection}{0.5em}{}
+\titleformat{\subsubsection}[hang]{\bfseries}{\thesubsubsection}{0.5em}{}
 
 
 \begin{document}
@@ -23,4 +36,22 @@
 		{\Large Submitted as partial fulfillment for the requirements of ECE 651}
 	\end{center}
 \end{titlepage}
+
+\begin{spacing}{1.5}
+\large
+\tableofcontents
+\end{spacing}
+\newpage
+
+\section{Background}
+
+\section{Innovation}
+
+\section{Feasibility}
+\subsection{Architecture}
+\subsection{Software and Hardware Requirement}
+\subsection{Milestones}
+
+\section{Expection}
+
 \end{document}
