@@ -17,10 +17,6 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
     public final static String EXTRA_MESSAGE = "ca.uwaterloo.ece651.pricecompare.pricecompare.MESSAGE";
     private ZBarScannerView mScannerView;
 
-    private static String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

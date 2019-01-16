@@ -68,15 +68,11 @@ public class AddItem extends AppCompatActivity {
         bt_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-                    if (ActivityCompat.checkSelfPermission(AddItem.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(AddItem.this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
-                    } else {
-                        takeCamera();
-                    }
+                if (ActivityCompat.checkSelfPermission(AddItem.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(AddItem.this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
+                } else {
+                    takeCamera();
                 }
-
-
             }
         });
         bt_cancle.setOnClickListener(new View.OnClickListener() {
@@ -126,7 +122,6 @@ public class AddItem extends AppCompatActivity {
                     Manifest.permission.CAMERA);
             if (checkCallPhonePermission != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(AddItem.this, new String[]{Manifest.permission.CAMERA}, 222);
-                return;
             } else {
                 startActivityForResult(intent, REQUEST_CAMERA);
                 popupWindow.dismiss();
@@ -223,15 +218,14 @@ public class AddItem extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // TODO Auto-generated method stub
+                // Do nothing
 
             }
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count,
                                           int after) {
-                // TODO Auto-generated method stub
-
+                // Do nothing
             }
 
             @Override
@@ -239,9 +233,16 @@ public class AddItem extends AppCompatActivity {
                 if(!s.toString().startsWith("$")){
                     textPrice.setText("$");
                     Selection.setSelection(textPrice.getText(), textPrice.getText().length());
-
                 }
 
+            }
+        });
+
+        image = (ImageView) findViewById(R.id.add_image);
+        image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addimage();
             }
         });
     }
