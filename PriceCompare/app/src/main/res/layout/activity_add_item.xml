@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".addItem">
+    tools:context=".AddItem">
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -45,7 +45,7 @@
                 android:textSize="14sp" />
 
             <EditText
-                android:id="@+id/editText2"
+                android:id="@+id/editText_add_UPC"
                 android:layout_width="299dp"
                 android:layout_height="wrap_content"
                 android:ems="10"

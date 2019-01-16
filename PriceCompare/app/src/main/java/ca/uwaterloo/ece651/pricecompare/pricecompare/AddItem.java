@@ -33,7 +33,7 @@ import android.widget.Toast;
 
 import java.io.File;
 
-public class addItem extends AppCompatActivity {
+public class AddItem extends AppCompatActivity {
     public static final int REQUEST_CAMERA = 1;
     public static final int REQUEST_ALBUM = 2;
     private static int REQUEST_PERMISSION_CODE = 3;
@@ -69,8 +69,8 @@ public class addItem extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-                    if (ActivityCompat.checkSelfPermission(addItem.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(addItem.this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
+                    if (ActivityCompat.checkSelfPermission(AddItem.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(AddItem.this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
                     } else {
                         takeCamera();
                     }
@@ -118,14 +118,14 @@ public class addItem extends AppCompatActivity {
             e.printStackTrace();
         }
 //        imageUri = Uri.fromFile(output);
-        imageUri = FileProvider.getUriForFile(addItem.this, getPackageName() + ".my.package.name.provider", output);
+        imageUri = FileProvider.getUriForFile(AddItem.this, getPackageName() + ".my.package.name.provider", output);
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
         intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
         if (Build.VERSION.SDK_INT >= 23) {
-            int checkCallPhonePermission = ContextCompat.checkSelfPermission(addItem.this,
+            int checkCallPhonePermission = ContextCompat.checkSelfPermission(AddItem.this,
                     Manifest.permission.CAMERA);
             if (checkCallPhonePermission != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(addItem.this, new String[]{Manifest.permission.CAMERA}, 222);
+                ActivityCompat.requestPermissions(AddItem.this, new String[]{Manifest.permission.CAMERA}, 222);
                 return;
             } else {
                 startActivityForResult(intent, REQUEST_CAMERA);
@@ -196,7 +196,7 @@ public class addItem extends AppCompatActivity {
                 takeCamera();
             } else {
                 // Permission Denied
-                Toast.makeText(addItem.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AddItem.this, "Permission Denied", Toast.LENGTH_SHORT).show();
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -208,13 +208,18 @@ public class addItem extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_item);
-        final EditText edt = (EditText) findViewById(R.id.editText_price);
 
-        edt.setText("$");
-        Selection.setSelection(edt.getText(), edt.getText().length());
+        // Get UPC from scanner
+        Intent intent = getIntent();
+        String message = intent.getStringExtra(ScannerActivity.EXTRA_MESSAGE);
+        EditText textUPC = (EditText) findViewById(R.id.editText_add_UPC);
+        textUPC.setText(message);
 
-
-        edt.addTextChangedListener(new TextWatcher() {
+        // Keep the dollar sign of the price textEdit - Han
+        final EditText textPrice = (EditText) findViewById(R.id.editText_price);
+        textPrice.setText("$");
+        Selection.setSelection(textPrice.getText(), textPrice.getText().length());
+        textPrice.addTextChangedListener(new TextWatcher() {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -232,8 +237,8 @@ public class addItem extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 if(!s.toString().startsWith("$")){
-                    edt.setText("$");
-                    Selection.setSelection(edt.getText(), edt.getText().length());
+                    textPrice.setText("$");
+                    Selection.setSelection(textPrice.getText(), textPrice.getText().length());
 
                 }
 
