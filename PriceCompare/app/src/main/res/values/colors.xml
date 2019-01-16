@@ -2,8 +2,9 @@
 <resources>
     <color name="colorPrimary">#cc4f41</color>
     <color name="colorPrimaryDark">#a93d2b</color>
-    <color name="colorAccent">#3c648e</color>
+    <color name="colorAppBackground">#eeeeee</color>
+    <color name="colorAccent">#cc4f41</color>
     <color name="colorHintText">#767676</color>
+    <color name="colorIconOnButton">#cc4f41</color>
     <color name="white">#ffffff</color>
-    <color name="colorBackground">#cccccc</color>
 </resources>
