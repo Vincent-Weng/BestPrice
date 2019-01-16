@@ -14,20 +14,17 @@
     <string name="cat_button_3_text">Cleaning</string>
     <string name="cat_button_4_text">Pharmacy</string>
     <string name="action_done">action_done</string>
+
     <string name="upc">UPC:</string>
     <string name="name">Name:</string>
-    <string name="todo">TODO</string>
     <string name="input_upc_code">Input UPC code</string>
     <string name="category">Category:</string>
     <string name="recommended_store">Recommended Store:</string>
     <string name="view_all_stores">View All Stores</string>
-    <string name="category">Category:</string>
     <string name="select">Select..</string>
     <string name="price">Price:</string>
     <string name="dollar_sign">$</string>
-    <string name="name">Name:</string>
-    <string name="input_upc_code">Input UPC code</string>
-    <string name="upc">UPC:</string>
     <string name="store">Store:</string>
+    <string name="todo">TODO</string>
 
 </resources>
