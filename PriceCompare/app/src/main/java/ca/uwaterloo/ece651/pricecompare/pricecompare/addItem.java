@@ -1,0 +1,212 @@
+package ca.uwaterloo.ece651.pricecompare.pricecompare;
+
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.Toast;
+
+import java.io.File;
+
+public class addItem extends AppCompatActivity {
+    public static final int REQUEST_CAMERA = 1;
+    public static final int REQUEST_ALBUM = 2;
+    private static int REQUEST_PERMISSION_CODE = 3;
+    private File output;
+    private Uri imageUri;
+    private ImageView image;
+    PopupWindow popupWindow;
+
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+    private void addimage() {
+        View popView = View.inflate(this, R.layout.pop_fig_window, null);
+        Button bt_album = (Button) popView.findViewById(R.id.btn_pop_album);
+        Button bt_camera = (Button) popView.findViewById(R.id.btn_pop_camera);
+        Button bt_cancle = (Button) popView.findViewById(R.id.btn_pop_cancel);
+        int weight = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels * 1 / 3;
+        popupWindow = new PopupWindow(popView, weight, height);
+        popupWindow.setFocusable(true);
+        popupWindow.setOutsideTouchable(true);
+        bt_album.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(i, REQUEST_ALBUM);
+                popupWindow.dismiss();
+
+            }
+        });
+        bt_camera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+                    if (ActivityCompat.checkSelfPermission(addItem.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(addItem.this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
+                    } else {
+                        takeCamera();
+                    }
+                }
+
+
+            }
+        });
+        bt_cancle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+
+            }
+        });
+
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                WindowManager.LayoutParams lp = getWindow().getAttributes();
+                lp.alpha = 1.0f;
+                getWindow().setAttributes(lp);
+            }
+        });
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.alpha = 0.5f;
+        getWindow().setAttributes(lp);
+        popupWindow.showAtLocation(popView, Gravity.BOTTOM, 0, 50);
+    }
+
+
+    public void takeCamera() {
+        File file = new File(Environment.getExternalStorageDirectory(), "photos");
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        output = new File(file, System.currentTimeMillis() + ".jpg");
+
+        try {
+            if (output.exists()) {
+                output.delete();
+            }
+            output.createNewFile();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        imageUri = Uri.fromFile(output);
+        imageUri = FileProvider.getUriForFile(addItem.this, getPackageName() + ".my.package.name.provider", output);
+        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+        if (Build.VERSION.SDK_INT >= 23) {
+            int checkCallPhonePermission = ContextCompat.checkSelfPermission(addItem.this,
+                    Manifest.permission.CAMERA);
+            if (checkCallPhonePermission != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(addItem.this, new String[]{Manifest.permission.CAMERA}, 222);
+                return;
+            } else {
+                startActivityForResult(intent, REQUEST_CAMERA);
+                popupWindow.dismiss();
+            }
+        } else {
+            startActivityForResult(intent, REQUEST_CAMERA);
+            popupWindow.dismiss();
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        switch (requestCode) {
+            /**
+             * 拍照的请求标志
+             */
+            case REQUEST_CAMERA:
+                if (resultCode == RESULT_OK) {
+                    try {
+                        /**
+                         * 该uri就是照片文件夹对应的uri
+                         */
+                        Bitmap bit = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                        image.setImageBitmap(bit);
+                    } catch (Exception e) {
+                        Toast.makeText(this, "程序崩溃", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.i("tag", "失败");
+                }
+
+                break;
+            /**
+             * 从相册中选取图片的请求标志
+             */
+
+            case REQUEST_ALBUM:
+                if (resultCode == RESULT_OK) {
+                    try {
+                        /**
+                         * 该uri是上一个Activity返回的
+                         */
+                        Uri uri = data.getData();
+                        Bitmap bit = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
+                        image.setImageBitmap(bit);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.d("tag", e.getMessage());
+                        Toast.makeText(this, "程序崩溃", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.i("liang", "失败");
+                }
+
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_PERMISSION_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                takeCamera();
+            } else {
+                // Permission Denied
+                Toast.makeText(addItem.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_add_item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.check_price, menu);
+        return true;
+    }
+}

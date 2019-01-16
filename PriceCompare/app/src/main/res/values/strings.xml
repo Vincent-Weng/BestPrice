@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Best Price</string>
+    <string name="action_settings">Settings</string>
+    <string name="product_name">Name:</string>
+    <string name="input_product_name_here">Input product name here</string>
+    <string name="action_search">Search</string>
+    <string name="search_hint">UPC or product name</string>
+    <string name="search_empty_hint">Please enter UPC or product name</string>
+    <string name="categories">Explore</string>
+
+    <string name="cat_button_0_text">Electronics</string>
+    <string name="cat_button_1_text">Food</string>
+    <string name="cat_button_2_text">Drinks</string>
+    <string name="cat_button_3_text">Cleaning</string>
+    <string name="cat_button_4_text">Pharmacy</string>
+    <string name="action_done">action_done</string>
+
+</resources>
