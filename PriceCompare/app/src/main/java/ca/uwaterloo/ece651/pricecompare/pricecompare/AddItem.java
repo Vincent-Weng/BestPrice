@@ -50,7 +50,7 @@ public class AddItem extends AppCompatActivity {
         View popView = View.inflate(this, R.layout.pop_fig_window, null);
         Button bt_album = (Button) popView.findViewById(R.id.btn_pop_album);
         Button bt_camera = (Button) popView.findViewById(R.id.btn_pop_camera);
-        Button bt_cancle = (Button) popView.findViewById(R.id.btn_pop_cancel);
+        Button bt_cancel = (Button) popView.findViewById(R.id.btn_pop_cancel);
         int weight = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels * 1 / 3;
         popupWindow = new PopupWindow(popView, weight, height);
@@ -75,7 +75,7 @@ public class AddItem extends AppCompatActivity {
                 }
             }
         });
-        bt_cancle.setOnClickListener(new View.OnClickListener() {
+        bt_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 popupWindow.dismiss();
@@ -250,7 +250,7 @@ public class AddItem extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.check_price, menu);
+        getMenuInflater().inflate(R.menu.menu_add_item, menu);
         return true;
     }
 
@@ -262,11 +262,16 @@ public class AddItem extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_done) {
-            this.finish();
-            return true;
+        switch (id) {
+            case R.id.action_done: {
+                this.finish();
+                break;
+            }
+            case R.id.action_delete: {
+                this.finish();
+                break;
+            }
         }
-
         return super.onOptionsItemSelected(item);
     }
 }

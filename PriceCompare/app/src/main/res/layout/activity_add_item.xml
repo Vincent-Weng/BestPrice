@@ -32,6 +32,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
+        android:stretchColumns="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout">
@@ -49,12 +50,13 @@
 
             <EditText
                 android:id="@+id/editText_add_UPC"
-                android:layout_width="299dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="@string/input_upc_code"
                 android:inputType="number"
                 android:textSize="14sp" />
+
         </TableRow>
 
         <TableRow
@@ -70,7 +72,7 @@
 
             <EditText
                 android:id="@+id/editText3"
-                android:layout_width="299dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="@string/input_product_name_here"
@@ -92,16 +94,18 @@
             <Button
                 android:id="@+id/button_select_catagoty"
                 style="@style/Widget.AppCompat.Button"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorAccent"
                 android:text="@string/select"
+                android:textAlignment="center"
+                android:textAllCaps="false"
                 android:textColor="@color/white" />
 
         </TableRow>
 
         <TableRow
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent">
 
             <TextView
@@ -113,7 +117,7 @@
 
             <EditText
                 android:id="@+id/editText_price"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="number|numberDecimal"
@@ -123,7 +127,7 @@
         </TableRow>
 
         <TableRow
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent">
 
             <TextView
@@ -136,12 +140,21 @@
             <Button
                 android:id="@+id/button_select_store"
                 style="@style/Widget.AppCompat.Button"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorAccent"
                 android:text="@string/select"
+                android:textAlignment="center"
+                android:textAllCaps="false"
                 android:textColor="@color/white" />
 
         </TableRow>
     </TableLayout>
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="87dp" />
 </android.support.constraint.ConstraintLayout>
