@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -31,12 +32,61 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+
+class RetrieveURLContent extends AsyncTask<String, Void, String> {
+    private Exception exception;
+
+    private static String convertStreamToString(InputStream is) {
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return sb.toString();
+    }
+
+    protected String doInBackground(String... urlToRead) {
+        try {
+            URL url = new URL(urlToRead[0]);
+            InputStream is = url.openStream();
+            JSONTokener tokener = new JSONTokener(convertStreamToString(is));
+            JSONObject object = new JSONObject(tokener);
+            JSONObject courses = (JSONObject) object.getJSONArray("items").get(0);
+            return (String) courses.get("title");
+        } catch (Exception e) {
+            this.exception = e;
+            return null;
+        }
+    }
+}
 
 public class AddItem extends AppCompatActivity {
     public static final int REQUEST_CAMERA = 1;
     public static final int REQUEST_ALBUM = 2;
     private static int REQUEST_PERMISSION_CODE = 3;
+    private static final String ITEM_REQUEST_URL = "https://api.upcitemdb.com/prod/trial/lookup?upc=";
     private File output;
     private Uri imageUri;
     private ImageView image;
@@ -46,6 +96,7 @@ public class AddItem extends AppCompatActivity {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
+    // Utility functions
     private void addimage() {
         View popView = View.inflate(this, R.layout.pop_fig_window, null);
         Button bt_album = (Button) popView.findViewById(R.id.btn_pop_album);
@@ -96,7 +147,6 @@ public class AddItem extends AppCompatActivity {
         getWindow().setAttributes(lp);
         popupWindow.showAtLocation(popView, Gravity.BOTTOM, 0, 50);
     }
-
 
     public void takeCamera() {
         File file = new File(Environment.getExternalStorageDirectory(), "photos");
@@ -197,8 +247,6 @@ public class AddItem extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -207,8 +255,19 @@ public class AddItem extends AppCompatActivity {
         // Get UPC from scanner
         Intent intent = getIntent();
         String message = intent.getStringExtra(ScannerActivity.EXTRA_MESSAGE);
-        EditText textUPC = (EditText) findViewById(R.id.editText_add_UPC);
+
+        // Set UPC textEdit
+        EditText textUPC = (EditText) findViewById(R.id.edt_add_UPC);
         textUPC.setText(message);
+
+        // Set produce name textEdit
+        try {
+            String name = new RetrieveURLContent().execute(ITEM_REQUEST_URL + message).get();
+            EditText textName = (EditText) findViewById(R.id.edt_add_name);
+            textName.setText(name);
+        } catch (Exception e) {
+            Log.v("ASYNC_ERROR", e.toString());
+        }
 
         // Keep the dollar sign of the price textEdit - Han
         final EditText textPrice = (EditText) findViewById(R.id.editText_price);

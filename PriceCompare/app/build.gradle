@@ -28,4 +28,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     // https://mvnrepository.com/artifact/me.dm7.barcodescanner/zbar
     implementation group: 'me.dm7.barcodescanner', name: 'zbar', version: '1.9.8'
+
+    // https://mvnrepository.com/artifact/org.json/json
+    implementation group: 'org.json', name: 'json', version: '20090211'
 }
