@@ -8,13 +8,14 @@
     <string name="search_empty_hint">Please enter UPC or product name</string>
     <string name="explore">Explore</string>
 
-    <string name="cat_button_0_text">Electronics</string>
-    <string name="cat_button_1_text">Food</string>
-    <string name="cat_button_2_text">Drinks</string>
-    <string name="cat_button_3_text">Cleaning</string>
-    <string name="cat_button_4_text">Pharmacy</string>
-    <string name="action_done">action_done</string>
+    <string name="cat_entertainment">Entertainment</string>
+    <string name="cat_food">Food</string>
+    <string name="cat_drink">Drink</string>
+    <string name="cat_home">Home</string>
+    <string name="cat_wellness">Wellness</string>
+    <string name="cat_office">Office</string>
 
+    <string name="action_done">action_done</string>
     <string name="upc">Barcode:</string>
     <string name="name">Name:</string>
     <string name="input_upc_code">Input UPC barcode</string>
@@ -27,6 +28,5 @@
     <string name="store">Store:</string>
     <string name="todo">TODO</string>
     <string name="help">Help</string>
-    <string name="office">Office</string>
 
 </resources>

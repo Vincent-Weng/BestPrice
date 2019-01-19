@@ -99,7 +99,7 @@
                 android:drawableStart="@drawable/ic_electronics"
                 android:gravity="start|center_vertical"
                 android:paddingStart="10dp"
-                android:text="@string/cat_button_0_text"
+                android:text="@string/cat_entertainment"
                 android:textAlignment="center"
                 android:textAllCaps="false"
                 android:textSize="16sp" />
@@ -118,7 +118,7 @@
                 android:drawableStart="@drawable/ic_food"
                 android:gravity="start|center_vertical"
                 android:paddingStart="10dp"
-                android:text="@string/cat_button_1_text"
+                android:text="@string/cat_food"
                 android:textAlignment="center"
                 android:textAllCaps="false"
                 android:textSize="16sp" />
@@ -143,7 +143,7 @@
                 android:drawableStart="@drawable/ic_drinks"
                 android:gravity="start|center_vertical"
                 android:paddingStart="10dp"
-                android:text="@string/cat_button_2_text"
+                android:text="@string/cat_drink"
                 android:textAlignment="center"
                 android:textAllCaps="false"
                 android:textSize="16sp" />
@@ -162,7 +162,7 @@
                 android:drawableStart="@drawable/ic_cleaning"
                 android:gravity="start|center_vertical"
                 android:paddingStart="10dp"
-                android:text="@string/cat_button_3_text"
+                android:text="@string/cat_home"
                 android:textAlignment="center"
                 android:textAllCaps="false"
                 android:textSize="16sp" />
@@ -187,7 +187,7 @@
                 android:drawableStart="@drawable/ic_pharmacy"
                 android:gravity="start|center_vertical"
                 android:paddingStart="10dp"
-                android:text="@string/cat_button_4_text"
+                android:text="@string/cat_wellness"
                 android:textAlignment="center"
                 android:textAllCaps="false"
                 android:textSize="16sp" />
@@ -206,7 +206,7 @@
                 android:drawableStart="@drawable/ic_office"
                 android:gravity="start|center_vertical"
                 android:paddingStart="10dp"
-                android:text="@string/office"
+                android:text="@string/cat_office"
                 android:textAlignment="center"
                 android:textAllCaps="false"
                 android:textSize="16sp" />
