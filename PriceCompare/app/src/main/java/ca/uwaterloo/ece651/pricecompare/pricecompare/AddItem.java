@@ -91,6 +91,7 @@ public class AddItem extends AppCompatActivity {
     private Uri imageUri;
     private ImageView image;
     private Button categorySelectButton;
+    private String categorySelected;
     PopupWindow popupPhotoWindow;
     PopupWindow popupCategorySelectWindow;
 
@@ -108,6 +109,7 @@ public class AddItem extends AppCompatActivity {
         int height = getResources().getDisplayMetrics().heightPixels * 1 / 3;
         popupPhotoWindow = new PopupWindow(popupPhotoView, weight, height);
         popupPhotoWindow.setFocusable(true);
+        popupPhotoWindow.setAnimationStyle(R.style.bottomPopupAnimation);
         popupPhotoWindow.setOutsideTouchable(true);
         bt_album.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -194,11 +196,47 @@ public class AddItem extends AppCompatActivity {
         Button btHome = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_3);
         Button btWellness = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_4);
         Button btOffice = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_5);
+        Button btCancel = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_cancel);
+
+        btEntertainment.setOnClickListener(v -> {
+            categorySelectButton.setText(getResources().getString(R.string.cat_entertainment));
+            categorySelected = getResources().getString(R.string.cat_entertainment);
+            popupCategorySelectWindow.dismiss();
+        });
+        btFood.setOnClickListener(v -> {
+            categorySelectButton.setText(getResources().getString(R.string.cat_food));
+            categorySelected = getResources().getString(R.string.cat_food);
+            popupCategorySelectWindow.dismiss();
+        });
+        btDrink.setOnClickListener(v -> {
+            categorySelectButton.setText(getResources().getString(R.string.cat_drink));
+            categorySelected = getResources().getString(R.string.cat_drink);
+            popupCategorySelectWindow.dismiss();
+        });
+        btHome.setOnClickListener(v -> {
+            categorySelectButton.setText(getResources().getString(R.string.cat_home));
+            categorySelected = getResources().getString(R.string.cat_home);
+            popupCategorySelectWindow.dismiss();
+        });
+        btWellness.setOnClickListener(v -> {
+            categorySelectButton.setText(getResources().getString(R.string.cat_wellness));
+            categorySelected = getResources().getString(R.string.cat_wellness);
+            popupCategorySelectWindow.dismiss();
+        });
+        btOffice.setOnClickListener(v -> {
+            categorySelectButton.setText(getResources().getString(R.string.cat_office));
+            categorySelected = getResources().getString(R.string.cat_office);
+            popupCategorySelectWindow.dismiss();
+        });
+        btCancel.setOnClickListener(v -> {
+            popupCategorySelectWindow.dismiss();
+        });
 
         popupCategorySelectWindow = new PopupWindow(popupCategoryView,
                 WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
         popupCategorySelectWindow.setFocusable(true);
         popupCategorySelectWindow.setOutsideTouchable(true);
+        popupCategorySelectWindow.setAnimationStyle(R.style.fadePopupAnimation);
 
         popupCategorySelectWindow.setOnDismissListener(() -> {
             WindowManager.LayoutParams lp = getWindow().getAttributes();
