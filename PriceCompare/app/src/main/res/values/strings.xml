@@ -28,5 +28,7 @@
     <string name="store">Store:</string>
     <string name="todo">TODO</string>
     <string name="help">Help</string>
+    <string name="popup_category">Category</string>
+    <string name="pop_cat_cancel">Cancel</string>
 
 </resources>

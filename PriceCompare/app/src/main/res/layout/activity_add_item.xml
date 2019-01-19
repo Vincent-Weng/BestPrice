@@ -92,7 +92,7 @@
                 android:textSize="14sp" />
 
             <Button
-                android:id="@+id/button_select_catagoty"
+                android:id="@+id/button_select_category"
                 style="@style/Widget.AppCompat.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

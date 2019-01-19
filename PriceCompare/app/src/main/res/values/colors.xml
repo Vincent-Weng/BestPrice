@@ -7,4 +7,5 @@
     <color name="colorHintText">#767676</color>
     <color name="colorIconOnButton">#cc4f41</color>
     <color name="white">#ffffff</color>
+    <color name="colorButtonBlue">#5687dd</color>
 </resources>

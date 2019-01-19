@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -16,7 +17,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
@@ -90,7 +90,9 @@ public class AddItem extends AppCompatActivity {
     private File output;
     private Uri imageUri;
     private ImageView image;
-    PopupWindow popupWindow;
+    private Button categorySelectButton;
+    PopupWindow popupPhotoWindow;
+    PopupWindow popupCategorySelectWindow;
 
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -98,21 +100,21 @@ public class AddItem extends AppCompatActivity {
 
     // Utility functions
     private void addimage() {
-        View popView = View.inflate(this, R.layout.pop_fig_window, null);
-        Button bt_album = (Button) popView.findViewById(R.id.btn_pop_album);
-        Button bt_camera = (Button) popView.findViewById(R.id.btn_pop_camera);
-        Button bt_cancel = (Button) popView.findViewById(R.id.btn_pop_cancel);
+        View popupPhotoView = View.inflate(this, R.layout.popup_photo_window, null);
+        Button bt_album = (Button) popupPhotoView.findViewById(R.id.btn_pop_album);
+        Button bt_camera = (Button) popupPhotoView.findViewById(R.id.btn_pop_camera);
+        Button bt_cancel = (Button) popupPhotoView.findViewById(R.id.btn_pop_cancel);
         int weight = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels * 1 / 3;
-        popupWindow = new PopupWindow(popView, weight, height);
-        popupWindow.setFocusable(true);
-        popupWindow.setOutsideTouchable(true);
+        popupPhotoWindow = new PopupWindow(popupPhotoView, weight, height);
+        popupPhotoWindow.setFocusable(true);
+        popupPhotoWindow.setOutsideTouchable(true);
         bt_album.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(i, REQUEST_ALBUM);
-                popupWindow.dismiss();
+                popupPhotoWindow.dismiss();
 
             }
         });
@@ -129,12 +131,12 @@ public class AddItem extends AppCompatActivity {
         bt_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                popupWindow.dismiss();
+                popupPhotoWindow.dismiss();
 
             }
         });
 
-        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+        popupPhotoWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
                 WindowManager.LayoutParams lp = getWindow().getAttributes();
@@ -145,7 +147,7 @@ public class AddItem extends AppCompatActivity {
         WindowManager.LayoutParams lp = getWindow().getAttributes();
         lp.alpha = 0.5f;
         getWindow().setAttributes(lp);
-        popupWindow.showAtLocation(popView, Gravity.BOTTOM, 0, 50);
+        popupPhotoWindow.showAtLocation(popupPhotoView, Gravity.BOTTOM, 0, 50);
     }
 
     public void takeCamera() {
@@ -174,13 +176,40 @@ public class AddItem extends AppCompatActivity {
                 ActivityCompat.requestPermissions(AddItem.this, new String[]{Manifest.permission.CAMERA}, 222);
             } else {
                 startActivityForResult(intent, REQUEST_CAMERA);
-                popupWindow.dismiss();
+                popupPhotoWindow.dismiss();
             }
         } else {
             startActivityForResult(intent, REQUEST_CAMERA);
-            popupWindow.dismiss();
+            popupPhotoWindow.dismiss();
         }
 
+    }
+
+    public void selectCategory(){
+        View popupCategoryView = View.inflate(this, R.layout.popup_cat_select_window, null);
+
+        Button btEntertainment = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_0);
+        Button btFood = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_1);
+        Button btDrink = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_2);
+        Button btHome = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_3);
+        Button btWellness = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_4);
+        Button btOffice = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_5);
+
+        popupCategorySelectWindow = new PopupWindow(popupCategoryView,
+                WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+        popupCategorySelectWindow.setFocusable(true);
+        popupCategorySelectWindow.setOutsideTouchable(true);
+
+        popupCategorySelectWindow.setOnDismissListener(() -> {
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.alpha = 1.0f;
+            getWindow().setAttributes(lp);
+        });
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.alpha = 0.5f;
+        getWindow().setAttributes(lp);
+
+        popupCategorySelectWindow.showAtLocation(popupCategoryView, Gravity.CENTER,0,0);
     }
 
     @Override
@@ -298,12 +327,12 @@ public class AddItem extends AppCompatActivity {
         });
 
         image = (ImageView) findViewById(R.id.add_image);
-        image.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addimage();
-            }
-        });
+        image.setOnClickListener(v -> addimage());
+
+
+        categorySelectButton = (Button) findViewById(R.id.button_select_category);
+        categorySelectButton.setOnClickListener(v -> selectCategory());
+
     }
 
     @Override
@@ -333,4 +362,6 @@ public class AddItem extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 }
