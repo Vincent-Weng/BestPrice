@@ -48,8 +48,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
 
 class RetrieveURLContent extends AsyncTask<String, Void, String> {
     private Exception exception;
@@ -92,10 +97,10 @@ class RetrieveURLContent extends AsyncTask<String, Void, String> {
 }
 
 public class AddItem extends AppCompatActivity {
+    // Member variables
     public static final int REQUEST_CAMERA = 1;
     public static final int REQUEST_ALBUM = 2;
     private static int REQUEST_PERMISSION_CODE = 3;
-    private static final String ITEM_REQUEST_URL = "https://api.upcitemdb.com/prod/trial/lookup?upc=";
     private File output;
     private Uri imageUri;
     private ImageView image;
@@ -110,6 +115,11 @@ public class AddItem extends AppCompatActivity {
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+    // Data
+    double lat = 0, lng = 0;
+    private static final String ITEM_REQUEST_URL = "https://api.upcitemdb.com/prod/trial/lookup?upc=";
+    private HashMap<String, List<Double>> stores = new HashMap<>();
 
     // Utility functions
     private void addimage() {
@@ -268,18 +278,31 @@ public class AddItem extends AppCompatActivity {
             ActivityCompat.requestPermissions(AddItem.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 222);
             ActivityCompat.requestPermissions(AddItem.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 222);
         }
+
         mFusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        if (location != null) {
-                            Toast.makeText(getBaseContext(), "" + location.getLatitude() + ", " + location.getLongitude(), Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getBaseContext(), "Can't get current location", Toast.LENGTH_SHORT).show();
-                        }
+                .addOnSuccessListener(this, location -> {
+                    if (location != null) {
+                        lat = location.getLatitude();
+                        lng = location.getLongitude();
+                        Toast.makeText(getBaseContext(), "Current location: " + location.getLatitude() + ", " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getBaseContext(), "Can't get current location", Toast.LENGTH_SHORT).show();
                     }
                 });
 
+        String closestStore = "";
+        double minDistanceSq = Double.MAX_VALUE;
+
+        for (String store : stores.keySet()) {
+            double storeLat = stores.get(store).get(0);
+            double storeLng = stores.get(store).get(1);
+            if ((lat - storeLat) * (lat - storeLat) + (lng - storeLng) * (lng - storeLng) < minDistanceSq) {
+                closestStore = store;
+                minDistanceSq = (lat - storeLat) * (lat - storeLat) + (lng - storeLng) * (lng - storeLng);
+            }
+        }
+
+        storeSelectButton.setText(closestStore);
     }
 
     @Override
@@ -334,7 +357,8 @@ public class AddItem extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         if (requestCode == REQUEST_PERMISSION_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 takeCamera();
@@ -350,8 +374,21 @@ public class AddItem extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_item);
-
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        // Add stores. Will be replaced with database visit in the future.
+        InputStream inputStream = getResources().openRawResource(R.raw.stores);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                String[] tokens = line.split(",");
+                stores.put(tokens[0], Arrays.asList(Double.parseDouble(tokens[1]), Double.parseDouble(tokens[2])));
+                Log.v("INFO", tokens[0] + ": " + tokens[1] + ", " + tokens[2]);
+            }
+        } catch (Exception e) {
+            Log.v("error", e.toString());
+        }
 
         // Get UPC from scanner
         Intent intent = getIntent();
@@ -401,13 +438,11 @@ public class AddItem extends AppCompatActivity {
         image = (ImageView) findViewById(R.id.add_image);
         image.setOnClickListener(v -> addimage());
 
-
         categorySelectButton = (Button) findViewById(R.id.button_select_category);
         categorySelectButton.setOnClickListener(v -> selectCategory());
 
         storeSelectButton = (Button) findViewById(R.id.button_select_store);
         storeSelectButton.setOnClickListener(v -> selectStore());
-
     }
 
     @Override
