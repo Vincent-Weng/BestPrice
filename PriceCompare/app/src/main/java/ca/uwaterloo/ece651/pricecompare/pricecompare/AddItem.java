@@ -1,10 +1,14 @@
 package ca.uwaterloo.ece651.pricecompare.pricecompare;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -35,12 +39,17 @@ import android.widget.Toast;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Arrays;
 
 class RetrieveURLContent extends AsyncTask<String, Void, String> {
     private Exception exception;
@@ -92,8 +101,11 @@ public class AddItem extends AppCompatActivity {
     private ImageView image;
     private Button categorySelectButton;
     private String categorySelected;
+    private Button storeSelectButton;
+    private String storeSelected;
     PopupWindow popupPhotoWindow;
     PopupWindow popupCategorySelectWindow;
+    private FusedLocationProviderClient mFusedLocationClient;
 
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -187,16 +199,16 @@ public class AddItem extends AppCompatActivity {
 
     }
 
-    public void selectCategory(){
+    public void selectCategory() {
         View popupCategoryView = View.inflate(this, R.layout.popup_cat_select_window, null);
 
-        Button btEntertainment = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_0);
-        Button btFood = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_1);
-        Button btDrink = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_2);
-        Button btHome = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_3);
-        Button btWellness = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_4);
-        Button btOffice = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_5);
-        Button btCancel = (Button)popupCategoryView.findViewById(R.id.pop_cat_button_cancel);
+        Button btEntertainment = (Button) popupCategoryView.findViewById(R.id.pop_cat_button_0);
+        Button btFood = (Button) popupCategoryView.findViewById(R.id.pop_cat_button_1);
+        Button btDrink = (Button) popupCategoryView.findViewById(R.id.pop_cat_button_2);
+        Button btHome = (Button) popupCategoryView.findViewById(R.id.pop_cat_button_3);
+        Button btWellness = (Button) popupCategoryView.findViewById(R.id.pop_cat_button_4);
+        Button btOffice = (Button) popupCategoryView.findViewById(R.id.pop_cat_button_5);
+        Button btCancel = (Button) popupCategoryView.findViewById(R.id.pop_cat_button_cancel);
 
         btEntertainment.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_entertainment));
@@ -247,7 +259,27 @@ public class AddItem extends AppCompatActivity {
         lp.alpha = 0.5f;
         getWindow().setAttributes(lp);
 
-        popupCategorySelectWindow.showAtLocation(popupCategoryView, Gravity.CENTER,0,0);
+        popupCategorySelectWindow.showAtLocation(popupCategoryView, Gravity.CENTER, 0, 0);
+    }
+
+    public void selectStore() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(AddItem.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 222);
+            ActivityCompat.requestPermissions(AddItem.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 222);
+        }
+        mFusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if (location != null) {
+                            Toast.makeText(getBaseContext(), "" + location.getLatitude() + ", " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getBaseContext(), "Can't get current location", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
     }
 
     @Override
@@ -319,6 +351,8 @@ public class AddItem extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_item);
 
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         // Get UPC from scanner
         Intent intent = getIntent();
         String message = intent.getStringExtra(ScannerActivity.EXTRA_MESSAGE);
@@ -356,7 +390,7 @@ public class AddItem extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if(!s.toString().startsWith("$")){
+                if (!s.toString().startsWith("$")) {
                     textPrice.setText("$");
                     Selection.setSelection(textPrice.getText(), textPrice.getText().length());
                 }
@@ -370,6 +404,9 @@ public class AddItem extends AppCompatActivity {
 
         categorySelectButton = (Button) findViewById(R.id.button_select_category);
         categorySelectButton.setOnClickListener(v -> selectCategory());
+
+        storeSelectButton = (Button) findViewById(R.id.button_select_store);
+        storeSelectButton.setOnClickListener(v -> selectStore());
 
     }
 
