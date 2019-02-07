@@ -117,7 +117,8 @@ public class AddItem extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     // Data
-    double lat = 0, lng = 0;
+    double lat, lng;
+    String nearestStore = "";
     private static final String ITEM_REQUEST_URL = "https://api.upcitemdb.com/prod/trial/lookup?upc=";
     private HashMap<String, List<Double>> stores = new HashMap<>();
 
@@ -272,7 +273,7 @@ public class AddItem extends AppCompatActivity {
         popupCategorySelectWindow.showAtLocation(popupCategoryView, Gravity.CENTER, 0, 0);
     }
 
-    public void selectStore() {
+    public void getLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(AddItem.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 222);
@@ -286,67 +287,64 @@ public class AddItem extends AppCompatActivity {
                         lng = location.getLongitude();
                         Toast.makeText(getBaseContext(), "Current location: " + location.getLatitude() + ", " + location.getLongitude(), Toast.LENGTH_SHORT).show();
                     } else {
+                        lat = 0;
+                        lng = 0;
                         Toast.makeText(getBaseContext(), "Can't get current location", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
 
-        String closestStore = "";
+    public void getNearestStore() {
+        Log.v("INFO", String.valueOf(lat));
+        Log.v("INFO", String.valueOf(lng));
+
         double minDistanceSq = Double.MAX_VALUE;
 
         for (String store : stores.keySet()) {
             double storeLat = stores.get(store).get(0);
             double storeLng = stores.get(store).get(1);
             if ((lat - storeLat) * (lat - storeLat) + (lng - storeLng) * (lng - storeLng) < minDistanceSq) {
-                closestStore = store;
+                nearestStore = store;
                 minDistanceSq = (lat - storeLat) * (lat - storeLat) + (lng - storeLng) * (lng - storeLng);
             }
         }
+    }
 
-        storeSelectButton.setText(closestStore);
+    public void selectStore() {
+        getNearestStore();
+        storeSelectButton.setText(nearestStore);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         switch (requestCode) {
-            /**
-             * 拍照的请求标志
-             */
             case REQUEST_CAMERA:
                 if (resultCode == RESULT_OK) {
                     try {
-                        /**
-                         * 该uri就是照片文件夹对应的uri
-                         */
                         Bitmap bit = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
                         image.setImageBitmap(bit);
                     } catch (Exception e) {
-                        Toast.makeText(this, "程序崩溃", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Crashed", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Log.i("tag", "失败");
+                    Log.i("tag", "Failed");
                 }
 
                 break;
-            /**
-             * 从相册中选取图片的请求标志
-             */
 
             case REQUEST_ALBUM:
                 if (resultCode == RESULT_OK) {
                     try {
-                        /**
-                         * 该uri是上一个Activity返回的
-                         */
                         Uri uri = data.getData();
                         Bitmap bit = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
                         image.setImageBitmap(bit);
                     } catch (Exception e) {
                         e.printStackTrace();
                         Log.d("tag", e.getMessage());
-                        Toast.makeText(this, "程序崩溃", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Crashed", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Log.i("liang", "失败");
+                    Log.i("liang", "Failed");
                 }
 
                 break;
@@ -389,6 +387,9 @@ public class AddItem extends AppCompatActivity {
         } catch (Exception e) {
             Log.v("error", e.toString());
         }
+
+        // Update nearest store
+        getLocation();
 
         // Get UPC from scanner
         Intent intent = getIntent();
