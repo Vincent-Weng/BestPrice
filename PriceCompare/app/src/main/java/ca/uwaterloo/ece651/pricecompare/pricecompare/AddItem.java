@@ -35,6 +35,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.Toast;
+import android.widget.LinearLayout;
+
+import static android.view.WindowManager.LayoutParams;
 
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -110,6 +113,7 @@ public class AddItem extends AppCompatActivity {
     private String storeSelected;
     PopupWindow popupPhotoWindow;
     PopupWindow popupCategorySelectWindow;
+    PopupWindow popupStoreSelectWindow;
     private FusedLocationProviderClient mFusedLocationClient;
 
     private static String[] PERMISSIONS_STORAGE = {
@@ -311,8 +315,52 @@ public class AddItem extends AppCompatActivity {
     }
 
     public void selectStore() {
-        getNearestStore();
-        storeSelectButton.setText(nearestStore);
+//        getNearestStore();
+//        storeSelectButton.setText(nearestStore);
+        View popupStoreView = View.inflate(this, R.layout.popup_store_select_window, null);
+
+        LinearLayout storeScrollView = popupStoreView.findViewById(R.id.storeScrollLayout);
+        String[] storeList = {"T and T", "DBH", "Sobeys", "T and T", "DBH", "Sobeys", "T and T",
+                "DBH", "Sobeys", "T and T", "DBH", "Sobeys"};
+        for (String store : storeList) {
+            Button newButton = new Button(this);
+            newButton.setText(store);
+            newButton.setBackgroundColor(getResources().getColor(R.color.white));
+            newButton.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+            newButton.setPaddingRelative(130, 0, 0, 0);
+            newButton.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            newButton.setTextSize(18);
+            newButton.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
+                    LayoutParams.WRAP_CONTENT));
+            storeScrollView.addView(newButton);
+            newButton.setOnClickListener(v -> {
+                storeSelectButton.setText(store);
+                storeSelected = store;
+                popupStoreSelectWindow.dismiss();
+            });
+        }
+
+        Button btCancel = (Button) popupStoreView.findViewById(R.id.pop_store_button_cancel);
+        btCancel.setOnClickListener(v -> {
+            popupStoreSelectWindow.dismiss();
+        });
+
+        popupStoreSelectWindow = new PopupWindow(popupStoreView,
+                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        popupStoreSelectWindow.setFocusable(true);
+        popupStoreSelectWindow.setOutsideTouchable(true);
+        popupStoreSelectWindow.setAnimationStyle(R.style.fadePopupAnimation);
+
+        popupStoreSelectWindow.setOnDismissListener(() -> {
+            LayoutParams lp = getWindow().getAttributes();
+            lp.alpha = 1.0f;
+            getWindow().setAttributes(lp);
+        });
+        LayoutParams lp = getWindow().getAttributes();
+        lp.alpha = 0.5f;
+        getWindow().setAttributes(lp);
+
+        popupStoreSelectWindow.showAtLocation(popupStoreView, Gravity.CENTER, 0, 0);
     }
 
     @Override
@@ -439,9 +487,10 @@ public class AddItem extends AppCompatActivity {
         image = (ImageView) findViewById(R.id.add_image);
         image.setOnClickListener(v -> addimage());
 
+        // Category selection
         categorySelectButton = (Button) findViewById(R.id.button_select_category);
         categorySelectButton.setOnClickListener(v -> selectCategory());
-
+        // Store selection
         storeSelectButton = (Button) findViewById(R.id.button_select_store);
         storeSelectButton.setOnClickListener(v -> selectStore());
     }
