@@ -315,14 +315,11 @@ public class AddItem extends AppCompatActivity {
     }
 
     public void selectStore() {
-//        getNearestStore();
-//        storeSelectButton.setText(nearestStore);
+
         View popupStoreView = View.inflate(this, R.layout.popup_store_select_window, null);
 
         LinearLayout storeScrollView = popupStoreView.findViewById(R.id.storeScrollLayout);
-        String[] storeList = {"T and T", "DBH", "Sobeys", "T and T", "DBH", "Sobeys", "T and T",
-                "DBH", "Sobeys", "T and T", "DBH", "Sobeys"};
-        for (String store : storeList) {
+        for (String store : stores.keySet()) {
             Button newButton = new Button(this);
             newButton.setText(store);
             newButton.setBackgroundColor(getResources().getColor(R.color.white));
@@ -492,6 +489,8 @@ public class AddItem extends AppCompatActivity {
         categorySelectButton.setOnClickListener(v -> selectCategory());
         // Store selection
         storeSelectButton = (Button) findViewById(R.id.button_select_store);
+        getNearestStore();
+        storeSelectButton.setText(nearestStore);
         storeSelectButton.setOnClickListener(v -> selectStore());
     }
 
