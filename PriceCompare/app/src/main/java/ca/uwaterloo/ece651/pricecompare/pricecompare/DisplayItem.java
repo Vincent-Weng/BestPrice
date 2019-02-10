@@ -1,16 +1,123 @@
 package ca.uwaterloo.ece651.pricecompare.pricecompare;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 public class DisplayItem extends AppCompatActivity {
+
+    private Button displayStoreButton;
+    private HashMap<String, List<Double>> stores = new HashMap<>();
+    PopupWindow popupStoreSelectWindow;
+
+    public void displayStore(){
+
+        View popupStoreView = View.inflate(this, R.layout.popup_store_display_window, null);
+
+        LinearLayout storeScrollView = popupStoreView.findViewById(R.id.storeDisplayScrollLayout);
+        for (String store : stores.keySet()) {
+
+            TextView newTextStore = new TextView(this);
+            newTextStore.setText(store);
+            newTextStore.setBackgroundColor(getResources().getColor(R.color.white));
+            newTextStore.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+            newTextStore.setPaddingRelative(130, 0, 0, 0);
+            newTextStore.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            newTextStore.setTextSize(16);
+            newTextStore.setTextColor(getResources().getColor(R.color.black));
+            newTextStore.setLayoutParams(new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT));
+
+
+            TextView newTextPrice = new TextView(this);
+            newTextPrice.setBackgroundColor(getResources().getColor(R.color.white));
+            newTextPrice.setPaddingRelative(130, 0, 0, 0);
+            newTextPrice.setText("12");
+
+
+            storeScrollView.addView(newTextStore);
+            storeScrollView.addView(newTextPrice);
+
+        }
+
+        Button btCancel = (Button) popupStoreView.findViewById(R.id.pop_store_diplay_button_cancel);
+        btCancel.setOnClickListener(v -> {
+            popupStoreSelectWindow.dismiss();
+        });
+
+        popupStoreSelectWindow = new PopupWindow(popupStoreView,
+                WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+        popupStoreSelectWindow.setFocusable(true);
+        popupStoreSelectWindow.setOutsideTouchable(true);
+        popupStoreSelectWindow.setAnimationStyle(R.style.fadePopupAnimation);
+
+        popupStoreSelectWindow.setOnDismissListener(() -> {
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.alpha = 1.0f;
+            getWindow().setAttributes(lp);
+        });
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.alpha = 0.5f;
+        getWindow().setAttributes(lp);
+
+        popupStoreSelectWindow.showAtLocation(popupStoreView, Gravity.CENTER, 0, 0);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_item);
+
+        //get upc code from scanner and set it to edit_text
+        Intent intent = getIntent();
+        String massage = intent.getStringExtra(ScannerActivity.EXTRA_MESSAGE);
+
+        EditText textUPC = (EditText)findViewById(R.id.edt_dis_upc);
+        textUPC.setText(massage);
+
+
+
+        // Add stores. Will be replaced with database visit in the future.
+        InputStream inputStream = getResources().openRawResource(R.raw.stores);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                String[] tokens = line.split(",");
+                stores.put(tokens[0], Arrays.asList(Double.parseDouble(tokens[1]), Double.parseDouble(tokens[2])));
+                Log.v("INFO", tokens[0] + ": " + tokens[1] + ", " + tokens[2]);
+            }
+        } catch (Exception e) {
+            Log.v("error", e.toString());
+        }
+
+
+        //View all stores
+        displayStoreButton = (Button)findViewById(R.id.display_store);
+        displayStoreButton.setOnClickListener(v -> displayStore());
     }
 
     @Override

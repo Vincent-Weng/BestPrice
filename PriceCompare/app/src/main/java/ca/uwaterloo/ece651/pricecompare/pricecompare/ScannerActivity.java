@@ -44,10 +44,18 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
 
     @Override
     public void handleResult(Result result) {
-        Intent intent = new Intent(this, AddItem.class);
+        //The item does not exist in the database, go to AddItem class
+//        Intent intent = new Intent(this, AddItem.class);
+//        String message = result.getContents();
+//        intent.putExtra(EXTRA_MESSAGE, message);
+//        startActivity(intent);
+
+        // The item is in the database, go to DisplayItem class
+        Intent intent = new Intent(this, DisplayItem.class);
         String message = result.getContents();
         intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
+
 
 //        // If you would like to resume scanning, call this method below:
 //        mScannerView.resumeCameraPreview(this);

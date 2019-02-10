@@ -46,7 +46,7 @@
                 android:textSize="14sp" />
 
             <EditText
-                android:id="@+id/editText2"
+                android:id="@+id/edt_dis_upc"
                 android:layout_width="299dp"
                 android:layout_height="wrap_content"
                 android:ems="10"
@@ -84,7 +84,7 @@
                 android:id="@+id/textView5"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:text="@string/category"
+                android:text="@string/best_price"
                 android:textSize="14sp" />
 
             <EditText
@@ -97,11 +97,29 @@
 
         </TableRow>
 
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/textView7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/recommended_store" />
+
+            <EditText
+                android:id="@+id/editText8"
+                android:layout_width="299dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:textSize="14sp" />
+        </TableRow>
     </TableLayout>
 
     <LinearLayout
-        android:layout_width="379dp"
-        android:layout_height="230dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
@@ -115,25 +133,22 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/textView7"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/recommended_store" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:orientation="vertical"></LinearLayout>
-
-            <TextView
-                android:id="@+id/textView9"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/view_all_stores"
-                android:textColor="@color/colorAccent" />
 
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/display_store"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/view_all_stores"
+                android:textAlignment="viewStart"
+                android:textColor="@color/colorAccent" />
+
+        </LinearLayout>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
