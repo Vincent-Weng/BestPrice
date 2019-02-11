@@ -36,9 +36,16 @@ public class DisplayItem extends AppCompatActivity {
     public void displayStore(){
 
         View popupStoreView = View.inflate(this, R.layout.popup_store_display_window, null);
-
         LinearLayout storeScrollView = popupStoreView.findViewById(R.id.storeDisplayScrollLayout);
+        TableLayout table = new TableLayout(this);
+        table.setLayoutParams(new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT));
+        storeScrollView.addView(table);
+
         for (String store : stores.keySet()) {
+
+            TableRow tablerow = new TableRow(this);
+            table.addView(tablerow);
 
             TextView newTextStore = new TextView(this);
             newTextStore.setText(store);
@@ -46,10 +53,8 @@ public class DisplayItem extends AppCompatActivity {
             newTextStore.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
             newTextStore.setPaddingRelative(130, 0, 0, 0);
             newTextStore.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
-            newTextStore.setTextSize(16);
+            newTextStore.setTextSize(17);
             newTextStore.setTextColor(getResources().getColor(R.color.black));
-            newTextStore.setLayoutParams(new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT));
 
 
             TextView newTextPrice = new TextView(this);
@@ -57,9 +62,8 @@ public class DisplayItem extends AppCompatActivity {
             newTextPrice.setPaddingRelative(130, 0, 0, 0);
             newTextPrice.setText("12");
 
-
-            storeScrollView.addView(newTextStore);
-            storeScrollView.addView(newTextPrice);
+            tablerow.addView(newTextStore);
+            tablerow.addView(newTextPrice);
 
         }
 
