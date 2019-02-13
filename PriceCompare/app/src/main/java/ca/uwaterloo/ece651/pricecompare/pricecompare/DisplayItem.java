@@ -1,6 +1,8 @@
 package ca.uwaterloo.ece651.pricecompare.pricecompare;
 
 import android.content.Intent;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,26 +16,21 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 public class DisplayItem extends AppCompatActivity {
-
     private Button displayStoreButton;
     private HashMap<String, List<Double>> stores = new HashMap<>();
     PopupWindow popupStoreSelectWindow;
 
-    public void displayStore(){
+    public void displayStore(String upc){
 
         View popupStoreView = View.inflate(this, R.layout.popup_store_display_window, null);
         LinearLayout storeScrollView = popupStoreView.findViewById(R.id.storeDisplayScrollLayout);
@@ -44,26 +41,66 @@ public class DisplayItem extends AppCompatActivity {
 
         for (String store : stores.keySet()) {
 
-            TableRow tablerow = new TableRow(this);
-            table.addView(tablerow);
+//            TableRow tablerow = new TableRow(this);
+//            table.addView(tablerow);
+
+            Drawable img = getResources().getDrawable(R.drawable.ic_store_black_24dp);
+            if(store.toLowerCase().contains("sobey"))
+                img = getResources().getDrawable( R.drawable.sobeys );
+            else if(store.toLowerCase().contains("food basics"))
+                img = getResources().getDrawable( R.drawable.foodbasics );
+            else if(store.toLowerCase().contains("t&t"))
+                img = getResources().getDrawable( R.drawable.tnt );
+            else if(store.toLowerCase().contains("walmart"))
+                img = getResources().getDrawable( R.drawable.walmart );
+            else if(store.toLowerCase().contains("waterloo central"))
+                img = getResources().getDrawable( R.drawable.wcentral );
+            else if(store.toLowerCase().contains("zehrs"))
+                img = getResources().getDrawable( R.drawable.zehrs );
+
+            img.setBounds( 0, 0, 100, 100 );
 
             TextView newTextStore = new TextView(this);
-            newTextStore.setText(store);
+            newTextStore.setText(store+":");
             newTextStore.setBackgroundColor(getResources().getColor(R.color.white));
+            newTextStore.setCompoundDrawables( img, null, null, null );
             newTextStore.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
             newTextStore.setPaddingRelative(130, 0, 0, 0);
             newTextStore.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
             newTextStore.setTextSize(17);
-            newTextStore.setTextColor(getResources().getColor(R.color.black));
+            newTextStore.setTextColor(getResources().getColor(R.color.blue));
+            newTextStore.setPaintFlags(newTextStore.getPaintFlags()| Paint.UNDERLINE_TEXT_FLAG);
+            newTextStore.setCompoundDrawablePadding(21);
+            newTextStore.setOnClickListener(v->{Intent intent = new Intent(this, AddItem.class);
+                intent.putExtra("upc",upc);
+                intent.putExtra("activity","display");
+                intent.putExtra("store",store);
+                startActivity(intent);});
+            table.addView(newTextStore);
 
-
+            // if the price exists in the database, show the pircetext
             TextView newTextPrice = new TextView(this);
             newTextPrice.setBackgroundColor(getResources().getColor(R.color.white));
-            newTextPrice.setPaddingRelative(130, 0, 0, 0);
-            newTextPrice.setText("12");
+            newTextPrice.setPaddingRelative(230, 0, 0, 0);
+            newTextPrice.setTextSize(17);
+//            newTextPrice.setGravity(Gravity.RIGHT);
+            newTextPrice.setText("$120");
+            table.addView(newTextPrice);
 
-            tablerow.addView(newTextStore);
-            tablerow.addView(newTextPrice);
+//            // otherwise show the add button to Add_Item page.
+//            Button newButtonPrice = new Button(this);
+//            img = getResources().getDrawable(R.drawable.ic_add_circle_black_24dp);
+//            img.setBounds( 0, 0, 100, 100 );
+//            newButtonPrice.setCompoundDrawables( img, null, null, null );
+//            newButtonPrice.setPaddingRelative(230, 0, 0, 0);
+//            newButtonPrice.setBackgroundColor(getResources().getColor(R.color.white));
+//            newButtonPrice.setBackground(null);
+//            newButtonPrice.setOnClickListener(v->{Intent intent = new Intent(this, AddItem.class);
+//                intent.putExtra("upc",upc);
+//                intent.putExtra("activity","display");
+//                intent.putExtra("store",store);
+//                startActivity(intent);});
+//            table.addView(newButtonPrice);
 
         }
 
@@ -97,7 +134,7 @@ public class DisplayItem extends AppCompatActivity {
 
         //get upc code from scanner and set it to edit_text
         Intent intent = getIntent();
-        String massage = intent.getStringExtra(ScannerActivity.EXTRA_MESSAGE);
+        String massage = intent.getStringExtra("upc");
 
         EditText textUPC = (EditText)findViewById(R.id.edt_dis_upc);
         textUPC.setText(massage);
@@ -121,7 +158,7 @@ public class DisplayItem extends AppCompatActivity {
 
         //View all stores
         displayStoreButton = (Button)findViewById(R.id.display_store);
-        displayStoreButton.setOnClickListener(v -> displayStore());
+        displayStoreButton.setOnClickListener(v -> displayStore(massage));
     }
 
     @Override

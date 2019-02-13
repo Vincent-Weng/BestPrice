@@ -14,7 +14,6 @@ import me.dm7.barcodescanner.zbar.ZBarScannerView;
 
 public class ScannerActivity extends Activity implements ZBarScannerView.ResultHandler {
 
-    public final static String EXTRA_MESSAGE = "ca.uwaterloo.ece651.pricecompare.pricecompare.MESSAGE";
     private ZBarScannerView mScannerView;
 
     @Override
@@ -44,16 +43,18 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
 
     @Override
     public void handleResult(Result result) {
-        //The item does not exist in the database, go to AddItem class
+//        //The item does not exist in the database, go to AddItem class
 //        Intent intent = new Intent(this, AddItem.class);
 //        String message = result.getContents();
-//        intent.putExtra(EXTRA_MESSAGE, message);
+//        intent.putExtra("upc", message);
+//        intent.putExtra("activity","scanner");
 //        startActivity(intent);
 
         // The item is in the database, go to DisplayItem class
         Intent intent = new Intent(this, DisplayItem.class);
         String message = result.getContents();
-        intent.putExtra(EXTRA_MESSAGE, message);
+        intent.putExtra("upc", message);
+        intent.putExtra("activity","scanner");
         startActivity(intent);
 
 

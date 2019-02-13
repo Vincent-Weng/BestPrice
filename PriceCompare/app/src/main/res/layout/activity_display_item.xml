@@ -145,6 +145,7 @@
                 android:id="@+id/display_store"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/windowBackgroundFallback"
                 android:text="@string/view_all_stores"
                 android:textAlignment="viewStart"
                 android:textColor="@color/colorAccent" />

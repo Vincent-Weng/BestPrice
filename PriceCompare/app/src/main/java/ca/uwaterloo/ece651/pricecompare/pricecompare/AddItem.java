@@ -1,14 +1,10 @@
 package ca.uwaterloo.ece651.pricecompare.pricecompare;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -44,20 +40,16 @@ import org.json.JSONTokener;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 
 class RetrieveURLContent extends AsyncTask<String, Void, String> {
     private Exception exception;
@@ -438,15 +430,17 @@ public class AddItem extends AppCompatActivity {
 
         // Get UPC from scanner
         Intent intent = getIntent();
-        String message = intent.getStringExtra(ScannerActivity.EXTRA_MESSAGE);
+        String upc_string = intent.getStringExtra("upc");
+        String store_string = intent.getStringExtra("store");
+        String activity = intent.getStringExtra("activity");
 
         // Set UPC textEdit
         EditText textUPC = (EditText) findViewById(R.id.edt_add_UPC);
-        textUPC.setText(message);
+        textUPC.setText(upc_string);
 
         // Set produce name textEdit
         try {
-            String name = new RetrieveURLContent().execute(ITEM_REQUEST_URL + message).get();
+            String name = new RetrieveURLContent().execute(ITEM_REQUEST_URL + upc_string).get();
             EditText textName = (EditText) findViewById(R.id.edt_add_name);
             textName.setText(name);
         } catch (Exception e) {
@@ -489,8 +483,13 @@ public class AddItem extends AppCompatActivity {
         categorySelectButton.setOnClickListener(v -> selectCategory());
         // Store selection
         storeSelectButton = (Button) findViewById(R.id.button_select_store);
-        getNearestStore();
-        storeSelectButton.setText(nearestStore);
+        if (activity.equals("scanner")) {
+            getNearestStore();
+            storeSelectButton.setText(nearestStore);
+        }
+        else if (activity.equals("display")) {
+            storeSelectButton.setText(store_string);
+        }
         storeSelectButton.setOnClickListener(v -> selectStore());
     }
 
