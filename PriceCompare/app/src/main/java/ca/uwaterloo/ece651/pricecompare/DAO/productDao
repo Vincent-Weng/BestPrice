@@ -1,0 +1,28 @@
+import java.util.List;
+
+public interface ProductDao{
+    //query all the product
+    public List<Product> getAllProducts() throws Exception;
+
+    //get product by UPC
+    public Product getByUPC (String upc) throws Exception;
+
+    //add product
+    //I am thinking about using json object instead of Product instance
+    public boolean createProduct (Product product) throws Exception;
+
+    //delete product
+    public boolean deleteProduct (String upc) throws Exception;
+
+    //update product name
+    public boolean updateProduct (Product product) throws Exception;
+
+    //update product category
+    public boolean updateProductName (Product product) throws Exception;
+
+    //update product picture
+    public boolean updateProductName (Product product) throws Exception;
+
+    //get a set of products by condition: store, category, etc..
+    public boolean getByCondition () throws Exception;
+}

@@ -1,0 +1,54 @@
+
+public class ProductDaoImpl extends BaseDao implements ProductDao{
+    //query all the product
+    public List<Product> getAllProducts() throws Exception {
+        Connection conn = BaseDao.getConnection();
+        String sql = "select * from product";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        ResultSet rs = stmt.executeQuery();
+        List<Product> productList = new Arraylist<Pet>();
+        while (rs.next()) {
+            Product product = new Product(
+                    rs.getString("UPC"),
+                    rs.getString("name"),
+                    rs.getString("category"),
+                    rs.getString("picture")
+            );
+            productList.add(product);
+        }
+        BaseDao.closeAll(conn, stmt, rs);
+        return productList;
+    }
+
+    //get product by UPC
+    public Product getByUPC (String upc) throws Exception {
+
+    }
+
+    //add product
+    //I am thinking about using json object instead of Product instance
+    public boolean createProduct (Product product) throws Exception {
+
+    }
+
+    //delete product
+    public boolean deleteProduct (String upc) throws Exception {
+
+    }
+
+    //update product name
+    public boolean updateProduct (Product product) throws Exception {
+
+    }
+
+    //update product category
+    public boolean updateProductName (Product product) throws Exception {
+
+    }
+
+    //get a set of products by condition: store, category, etc..
+    public boolean getByCondition () throws Exception {
+
+    }
+
+}
