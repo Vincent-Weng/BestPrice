@@ -36,4 +36,12 @@ dependencies {
     // https://mvnrepository.com/artifact/org.json/json
     implementation group: 'org.json', name: 'json', version: '20090211'
     implementation "com.google.android.gms:play-services-location:15.0.1"
+
+    //added by dan
+    //Retrofit
+    compile 'com.squareup.retrofit2:retrofit:2.0.2'
+    //Okhttp
+    compile 'com.squareup.okhttp3:okhttp:3.1.2'
+    //Gson
+    compile 'com.squareup.retrofit2:converter-gson:2.0.2'
 }

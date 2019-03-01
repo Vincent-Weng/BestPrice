@@ -1,5 +1,4 @@
-//package ca.uwaterloo.ece651.pricecompare.DAO
-//import java.Util.List;
+package ca.uwaterloo.ece651.pricecompare.DataReq;
 
 public class Product {
     private String UPC;
