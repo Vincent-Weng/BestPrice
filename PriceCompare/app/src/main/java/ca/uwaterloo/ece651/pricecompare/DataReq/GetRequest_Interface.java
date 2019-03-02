@@ -10,7 +10,7 @@ import java.util.List;
 public interface GetRequest_Interface{
     //http://ece651.us-east-2.elasticbeanstalk.com/Product/Query/12345678910
     @GET("/Product/Query/{UPC}")
-    Call<MyRequest> getCallByUpc(@Path("UPC") String upc);
+    Call<List<MyRequest>> getCallByUpc(@Path("UPC") String upc);
 
     @GET("/Product/Query/12345678910")
     Call<List<MyRequest>> getCalls();
@@ -25,7 +25,7 @@ public interface GetRequest_Interface{
 
 
     @POST("/Product/Insert")
-    Call<MyRequest> createProduct(@Query("UPC") String upc,
+    Call<List<MyRequest>> createProduct(@Query("UPC") String upc,
                                   @Query("name") String name,
                                   @Query("category") String category,
                                   @Query("picture") String picture

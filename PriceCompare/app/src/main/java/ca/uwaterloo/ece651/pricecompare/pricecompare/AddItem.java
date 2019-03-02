@@ -147,14 +147,14 @@ public class AddItem extends AppCompatActivity {
         //对 发送请求 进行封装
 
 
-        Call<MyRequest> call = request.createProduct(upc, name, category, picture);
+        Call<List<MyRequest>> call = request.createProduct(upc, name, category, picture);
         //Call<MyRequest> call = request.getCall();
 
         //步骤6:发送网络请求(异步)
-        call.enqueue(new Callback<MyRequest>() {
+        call.enqueue(new Callback<List<MyRequest>>() {
             //请求成功时回调
             @Override
-            public void onResponse(Call<MyRequest> call, Response<MyRequest> response) {
+            public void onResponse(Call<List<MyRequest>> call, Response<List<MyRequest>> response) {
                 // 步骤7：处理返回的数据结果
                 //response.body().show();
                 Toast.makeText(getBaseContext(), "I got a response: " + response.toString(), Toast.LENGTH_LONG);
@@ -162,7 +162,7 @@ public class AddItem extends AppCompatActivity {
 
             //请求失败时回调
             @Override
-            public void onFailure(Call<MyRequest> call, Throwable throwable) {
+            public void onFailure(Call<List<MyRequest>> call, Throwable throwable) {
                 System.out.println("Failed to connect");
             }
         });
@@ -568,11 +568,12 @@ public class AddItem extends AppCompatActivity {
                 GetRequest accessor = new GetRequest();
                 String testUri = "Iknownothing";
                 String testUPC = "5770022296";
+                String testUPC2 = "12345678910";
                 String testName = "water";
                 String testCategory = "Food";
                 //accessor.reqCreateProduct(textUPC.getText().toString(), textName.getText().toString(), categorySelected, testUri);
                 //accessor.reqCreateProduct(testUPC, testName, testCategory, testUri);
-                accessor.request();
+                accessor.requestByUpc(testUPC2);
                 List<MyRequest> results = accessor.getMyRequest();
                 if(accessor.getMyRequest() != null) {
                     if(results.size() == 0) {

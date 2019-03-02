@@ -62,10 +62,10 @@ public class MyRequest{
 
 
     public void show(){
-        Log.d("upc:", UPC);
-        Log.d("name:", name);
-        Log.d("category:", category);
-        Log.d("picture:", picture);
+        Log.d("upc:", "" + getUPC());
+        Log.d("name:", "" + getName());
+        Log.d("category:", "" + getCategory());
+        Log.d("picture:", "" + getPicture());
 
     }
 }
