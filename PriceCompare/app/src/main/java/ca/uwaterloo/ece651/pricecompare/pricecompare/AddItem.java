@@ -51,6 +51,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import ca.uwaterloo.ece651.pricecompare.DataReq.GetRequest;
+import ca.uwaterloo.ece651.pricecompare.DataReq.GetRequest_Interface;
+import ca.uwaterloo.ece651.pricecompare.DataReq.MyRequest;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
+
 class RetrieveURLContent extends AsyncTask<String, Void, String> {
     private Exception exception;
 
@@ -102,7 +112,10 @@ public class AddItem extends AppCompatActivity {
     private Button categorySelectButton;
     private String categorySelected;
     private Button storeSelectButton;
+    private Button nowAddButton;
     private String storeSelected;
+    private EditText textUPC;
+    private EditText textName;
     PopupWindow popupPhotoWindow;
     PopupWindow popupCategorySelectWindow;
     PopupWindow popupStoreSelectWindow;
@@ -119,6 +132,42 @@ public class AddItem extends AppCompatActivity {
     private HashMap<String, List<Double>> stores = new HashMap<>();
 
     // Utility functions
+    //http request
+    public void reqCreateProduct(String upc, String name, String category, String picture) {
+
+        //步骤4:创建Retrofit对象
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://ece651.us-east-2.elasticbeanstalk.com/") // 设置 网络请求 Url
+                .addConverterFactory(GsonConverterFactory.create()) //设置使用Gson解析(记得加入依赖)
+                .build();
+
+        // 步骤5:创建 网络请求接口 的实例
+        GetRequest_Interface request = retrofit.create(GetRequest_Interface.class);
+
+        //对 发送请求 进行封装
+
+
+        Call<MyRequest> call = request.createProduct(upc, name, category, picture);
+        //Call<MyRequest> call = request.getCall();
+
+        //步骤6:发送网络请求(异步)
+        call.enqueue(new Callback<MyRequest>() {
+            //请求成功时回调
+            @Override
+            public void onResponse(Call<MyRequest> call, Response<MyRequest> response) {
+                // 步骤7：处理返回的数据结果
+                //response.body().show();
+                Toast.makeText(getBaseContext(), "I got a response: " + response.toString(), Toast.LENGTH_LONG);
+            }
+
+            //请求失败时回调
+            @Override
+            public void onFailure(Call<MyRequest> call, Throwable throwable) {
+                System.out.println("Failed to connect");
+            }
+        });
+    }
+
     private void addimage() {
         View popupPhotoView = View.inflate(this, R.layout.popup_photo_window, null);
         Button bt_album = (Button) popupPhotoView.findViewById(R.id.btn_pop_album);
@@ -139,6 +188,7 @@ public class AddItem extends AppCompatActivity {
 
             }
         });
+
         bt_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -149,6 +199,7 @@ public class AddItem extends AppCompatActivity {
                 }
             }
         });
+
         bt_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -435,13 +486,14 @@ public class AddItem extends AppCompatActivity {
         String activity = intent.getStringExtra("activity");
 
         // Set UPC textEdit
-        EditText textUPC = (EditText) findViewById(R.id.edt_add_UPC);
+        textUPC = (EditText) findViewById(R.id.edt_add_UPC);
         textUPC.setText(upc_string);
 
         // Set produce name textEdit
+        textName = (EditText) findViewById(R.id.edt_add_name);
         try {
             String name = new RetrieveURLContent().execute(ITEM_REQUEST_URL + upc_string).get();
-            EditText textName = (EditText) findViewById(R.id.edt_add_name);
+
             textName.setText(name);
         } catch (Exception e) {
             Log.v("ASYNC_ERROR", e.toString());
@@ -483,13 +535,13 @@ public class AddItem extends AppCompatActivity {
         categorySelectButton.setOnClickListener(v -> selectCategory());
         // Store selection
         storeSelectButton = (Button) findViewById(R.id.button_select_store);
-        if (activity.equals("scanner")) {
+        //if (activity.equals("scanner")) {
             getNearestStore();
             storeSelectButton.setText(nearestStore);
-        }
-        else if (activity.equals("display")) {
-            storeSelectButton.setText(store_string);
-        }
+        //}
+        //else if (activity.equals("display")) {
+        //    storeSelectButton.setText(store_string);
+        //}
         storeSelectButton.setOnClickListener(v -> selectStore());
     }
 
@@ -510,7 +562,33 @@ public class AddItem extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.action_done: {
-                this.finish();
+
+                //this.finish();
+                //When all the inputs are done, click '√'
+                GetRequest accessor = new GetRequest();
+                String testUri = "Iknownothing";
+                String testUPC = "5770022296";
+                String testName = "water";
+                String testCategory = "Food";
+                //accessor.reqCreateProduct(textUPC.getText().toString(), textName.getText().toString(), categorySelected, testUri);
+                //accessor.reqCreateProduct(testUPC, testName, testCategory, testUri);
+                accessor.request();
+                List<MyRequest> results = accessor.getMyRequest();
+                if(accessor.getMyRequest() != null) {
+                    if(results.size() == 0) {
+                        Log.d("AddItem: size of list:", "0");
+                    }
+                    else {
+                        Log.d("AddItem: json object:", accessor.getMyRequest().get(0).toString());
+                    }
+
+                }
+//                else  if (accessor.getMyRequest().size() == 0) {
+//                    Log.d("the size of the list:", "0");
+//                }
+                else {
+                    Log.d("AddItem:getmyRequest():", "returns null List.");
+                }
                 break;
             }
             case R.id.action_delete: {
@@ -518,7 +596,9 @@ public class AddItem extends AppCompatActivity {
                 break;
             }
         }
-        return super.onOptionsItemSelected(item);
+        //return super.onOptionsItemSelected(item);
+        return true;
+        //return true;
     }
 
 
