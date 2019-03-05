@@ -487,7 +487,7 @@ public class AddItem extends AppCompatActivity {
             getNearestStore();
             storeSelectButton.setText(nearestStore);
         }
-        else if (activity.equals("display")) {
+        else if (activity.equals("activity_display_category")) {
             storeSelectButton.setText(store_string);
         }
         storeSelectButton.setOnClickListener(v -> selectStore());

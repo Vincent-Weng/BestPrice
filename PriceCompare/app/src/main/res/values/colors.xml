@@ -2,12 +2,12 @@
 <resources>
     <color name="colorPrimary">#cc4f41</color>
     <color name="colorPrimaryDark">#a93d2b</color>
-    <color name="colorAppBackground">#eeeeee</color>
-    <color name="colorAccent">#cc4f41</color>
+    <color name="colorAppBackground">#EEEEEE</color>
+    <color name="colorAccent">#CC4F41</color>
     <color name="colorHintText">#767676</color>
     <color name="colorIconOnButton">#cc4f41</color>
     <color name="white">#ffffff</color>
-    <color name="colorButtonBlue">#5687dd</color>
+    <color name="colorButtonBlue">#5687DD</color>
     <color name="black">#000000</color>
     <color name="blue">#0000FF</color>
 </resources>

@@ -30,8 +30,8 @@
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/add_button"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
+        android:layout_height="54dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginBottom="17dp"
         app:backgroundTint="#cc4f42"
         app:fabSize="normal"
@@ -41,13 +41,14 @@
 
     <LinearLayout
         android:id="@+id/linearLayout3"
-        android:layout_width="379dp"
-        android:layout_height="187dp"
+        android:layout_width="369dp"
+        android:layout_height="172dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout2"></LinearLayout>
 
@@ -74,15 +75,56 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="10dp"
         android:layout_marginEnd="16dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout4">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/cat_button_4"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:background="@color/white"
+                android:drawableStart="@drawable/ic_pharmacy"
+                android:gravity="start|center_vertical"
+                android:paddingStart="10dp"
+                android:text="@string/cat_wellness"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textSize="16sp" />
+
+            <Space
+                android:layout_width="5dp"
+                android:layout_height="match_parent" />
+
+            <Button
+                android:id="@+id/cat_button_5"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:background="@color/white"
+                android:drawableStart="@drawable/ic_office"
+                android:gravity="start|center_vertical"
+                android:paddingStart="10dp"
+                android:text="@string/cat_office"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textSize="16sp" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -172,45 +214,6 @@
             android:layout_width="match_parent"
             android:layout_height="5dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/cat_button_4"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_weight="1"
-                android:background="@color/white"
-                android:drawableStart="@drawable/ic_pharmacy"
-                android:gravity="start|center_vertical"
-                android:paddingStart="10dp"
-                android:text="@string/cat_wellness"
-                android:textAlignment="center"
-                android:textAllCaps="false"
-                android:textSize="16sp" />
-
-            <Space
-                android:layout_width="5dp"
-                android:layout_height="match_parent" />
-
-            <Button
-                android:id="@+id/cat_button_5"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_weight="1"
-                android:background="@color/white"
-                android:drawableStart="@drawable/ic_office"
-                android:gravity="start|center_vertical"
-                android:paddingStart="10dp"
-                android:text="@string/cat_office"
-                android:textAlignment="center"
-                android:textAllCaps="false"
-                android:textSize="16sp" />
-        </LinearLayout>
 
     </LinearLayout>
 

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorLayout2"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorAppBackground"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="390dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="1dp"
+        android:background="@color/colorAccent"
+        android:fontFamily="sans-serif-smallcaps"
+        android:gravity="center"
+        android:lineSpacingExtra="12sp"
+        android:text="   Recommendation"
+        android:textAlignment="viewStart"
+        android:textColor="@color/colorAppBackground"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints"></TextView>
+
+    <LinearLayout
+        android:id="@+id/linearLayout5"
+        android:layout_width="396dp"
+        android:layout_height="29dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="1dp"
+        app:layout_constraintBottom_toTopOf="@+id/users"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView">
+
+        <TextView
+            android:layout_width="157dp"
+            android:layout_height="match_parent"
+            android:background="@color/viewfinder_border"
+            android:gravity="center"
+            android:text="product"
+            android:textStyle="bold"></TextView>
+
+        <TextView
+            android:layout_width="117dp"
+            android:layout_height="29dp"
+            android:background="#F0E68C"
+            android:gravity="center"
+            android:text="price"
+            android:textStyle="bold"></TextView>
+
+        <TextView
+            android:layout_width="149dp"
+            android:layout_height="29dp"
+            android:background="@color/viewfinder_border"
+            android:gravity="center"
+            android:text="store"
+            android:textStyle="bold"></TextView>
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/users"
+        android:layout_width="wrap_content"
+        android:layout_height="532dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout5"></ListView>
+</android.support.constraint.ConstraintLayout>

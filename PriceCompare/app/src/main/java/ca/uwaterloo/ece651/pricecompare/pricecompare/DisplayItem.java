@@ -73,7 +73,7 @@ public class DisplayItem extends AppCompatActivity {
             newTextStore.setCompoundDrawablePadding(21);
             newTextStore.setOnClickListener(v->{Intent intent = new Intent(this, AddItem.class);
                 intent.putExtra("upc",upc);
-                intent.putExtra("activity","display");
+                intent.putExtra("activity","activity_display_category");
                 intent.putExtra("store",store);
                 startActivity(intent);});
             table.addView(newTextStore);
@@ -97,7 +97,7 @@ public class DisplayItem extends AppCompatActivity {
 //            newButtonPrice.setBackground(null);
 //            newButtonPrice.setOnClickListener(v->{Intent intent = new Intent(this, AddItem.class);
 //                intent.putExtra("upc",upc);
-//                intent.putExtra("activity","display");
+//                intent.putExtra("activity","activity_display_category");
 //                intent.putExtra("store",store);
 //                startActivity(intent);});
 //            table.addView(newButtonPrice);
