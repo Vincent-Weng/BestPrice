@@ -1,12 +1,9 @@
-package ca.uwaterloo.ece651.pricecompare.DataReq;
+package ca.uwaterloo.ece651.pricecompare.DataReq.Model;
 
 import android.util.Log;
 import com.google.gson.annotations.*;
 
-public class MyRequest{
-    //TODO : I hope myRequest can be an interface, so frontend developer won't have to specify the object they create
-    //TODO : use factory pattern
-
+public class Product{
 
     //responses of querying product:
     @SerializedName("UPC")
@@ -19,11 +16,15 @@ public class MyRequest{
 
     @SerializedName("category")
     @Expose
-    private int category;
+    private String category;
 
     @SerializedName("picture")
     @Expose
     private String picture;
+
+    @SerializedName("msg")
+    @Expose
+    private String msg;
 
     public String getUPC() {
         return UPC;
@@ -41,7 +42,7 @@ public class MyRequest{
         this.name = name;
     }
 
-    public int getCategory() {
+    public String getCategory() {
         return category;
     }
 
@@ -53,16 +54,24 @@ public class MyRequest{
         return picture;
     }
 
-    public void setCategory(int category) {
+    public void setCategory(String category) {
         this.category = category;
     }
 
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
 
     public void show(){
         Log.d("upc:", "" + getUPC());
         Log.d("name:", "" + getName());
         Log.d("category:", "" + getCategory());
         Log.d("picture:", "" + getPicture());
+        Log.d("msg", "" + getMsg());
 
     }
 }

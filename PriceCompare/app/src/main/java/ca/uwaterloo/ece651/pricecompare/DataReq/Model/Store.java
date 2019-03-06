@@ -1,22 +1,41 @@
-package ca.uwaterloo.ece651.pricecompare.DataReq;
+package ca.uwaterloo.ece651.pricecompare.DataReq.Model;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 public class Store {
-    private int storeID;
+    @SerializedName("storename")
+    @Expose
     private String storename;
+
+    @SerializedName("address")
+    @Expose
     private String address;
+
+    @SerializedName("latitude")
+    @Expose
     private double latitude;
+
+    @SerializedName("longitude")
+    @Expose
     private double longitude;
+
+    @SerializedName("city")
+    @Expose
     private String city;
+
+    @SerializedName("province")
+    @Expose
     private String province;
+
+    @SerializedName("postcode")
+    @Expose
     private String postcode;
 
-    public int getStoreID() {
-        return storeID;
-    }
+    @SerializedName("msg")
+    @Expose
+    private String msg;
 
-    public void setStoreID(int storeID) {
-        this.storeID = storeID;
-    }
 
     public String getStorename() {
         return storename;
@@ -72,5 +91,13 @@ public class Store {
 
     public void setPostcode(String postcode) {
         this.postcode = postcode;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public String getMsg() {
+        return msg;
     }
 }

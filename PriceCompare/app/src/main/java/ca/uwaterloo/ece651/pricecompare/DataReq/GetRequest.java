@@ -1,38 +1,90 @@
 package ca.uwaterloo.ece651.pricecompare.DataReq;
 
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.widget.Toast;
 
+import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Item;
+import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Product;
+import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Stock;
+import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Store;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+
 import android.util.Log;
 
 import java.util.List;
+//import java.util.Observable;
+
 //import ca.uwaterloo.ece651.pricecompare.DataReq.GetRequest_Interface;
 
 
 public class GetRequest {
     private String baseUrl;
-    private List<MyRequest> mMyResults;
+    private List<Product> productResults;
+    private List<Stock> stockResults;
+    private List<Store> storeResults;
+    private List<Item> itemResults;
     private GetRequest_Interface myRequester;
+    private GetDataCallBack cb;
 
-    public List<MyRequest> getMyRequest(){
-        return mMyResults;
+
+
+    public List<Product> getProductResults(){
+        return productResults;
+
+        //return testcb();
+    }
+
+//    public List<Product> testcb(){
+//        //return productResults;
+//        request(new GetDataCallBack() {
+//            @Override
+//            public void onGetData(Response rp) {
+//                productResults = (List<Product>)rp.body();
+//            }
+//
+//            @Override
+//            public void onError() {
+//
+//            }
+//        });
+//        return productResults;
+//    }
+
+    public void setProductResults(List<Product> productlists) {
+        productResults = productlists;
+    }
+    public List<Stock> getStockResults(){
+        return stockResults;
+    }
+    public List<Store> getStoreResults(){
+        return storeResults;
+    }
+    public List<Item> getItemResults(){
+        return itemResults;
     }
 
     public GetRequest_Interface getMyRequester() {
         return myRequester;
     }
 
+    //Constructors
+
     public GetRequest(){
         baseUrl = "http://ece651.us-east-2.elasticbeanstalk.com/";
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(baseUrl) // 设置 网络请求 Url
-                .addConverterFactory(GsonConverterFactory.create()) //设置使用Gson解析(记得加入依赖)
+                .baseUrl(baseUrl) // setup http request Url
+                .addConverterFactory(GsonConverterFactory.create()) //Use Gson to analyse the json objects
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
         myRequester = retrofit.create(GetRequest_Interface.class);
     }
@@ -40,124 +92,157 @@ public class GetRequest {
     public GetRequest(String baseUrl) {
         baseUrl = baseUrl;
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(baseUrl) // 设置 网络请求 Url
-                .addConverterFactory(GsonConverterFactory.create()) //设置使用Gson解析(记得加入依赖)
+                .baseUrl(baseUrl) // setup http request Url
+                .addConverterFactory(GsonConverterFactory.create()) //Use Gson to analyse the json objects
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
         myRequester = retrofit.create(GetRequest_Interface.class);
     }
 
+//    public List<Product> requestProductI(Callable<Product> func) {
+//        //func = getMyRequester.getCalls()
+//        Call<List<Product>> call = func;
+//
+//        //(async) send http request
+//        call.enqueue(new Callback<List<Product>>() {
+//            //callback when succeed requesting
+//            @Override
+//            public void onResponse(Call<List<Product>> call, Response<List<Product>> responses) {
+//                // process return data
+//                if(responses.body() == null){
+//                    Log.d("From getrequest","responses are null");
+//                }
+//                else {
+//                    Log.d("GR:responses: ", responses.body().toString());
+//                    productResults = responses.body();
+//                    Log.d("GR:size of mMyRequest", Integer.toString(productResults.size()));
+//                    productResults.get(0).show();
+//                }
+//            }
+//
+//            //callback when failed requesting
+//            @Override
+//            public void onFailure(Call<List<Product>> call, Throwable throwable) {
+//                System.out.println("Failed to connect, cause:" + throwable.getCause().toString() + "message" + throwable.getLocalizedMessage().toString());
+//            }
+//        });
+//    }
+
+//    //test callable
+//    public void requestByF() {
+//        Callable<List<Product>> func = getMyRequester().getCalls();
+//        requestI(func);
+//    }
+    //method used to test the retrofit connection
 
     public void request() {
-        //对 发送请求 进行封装
 
-        Call<List<MyRequest>> call = getMyRequester().getCalls();
+        Observable<List<Product>> observable = getMyRequester().getCalls();
 
-        //步骤6:发送网络请求(异步)
-        call.enqueue(new Callback<List<MyRequest>>() {
-            //请求成功时回调
+        //(async) send http request
+        observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<List<Product>>() {
+            //callback when succeed requesting
             @Override
-            public void onResponse(Call<List<MyRequest>> call, Response<List<MyRequest>> responses) {
-                // 步骤7：处理返回的数据结果
+            public void onSubscribe(Disposable d) {
+                Log.d("rxjava", "start subscribing");
+            }
+
+            @Override
+            public void onNext(List<Product> result) {
+                // process return data
+                if(result == null){
+                    Log.d("From getrequest","responses are null");
+                }
+                else {
+                    setProductResults(result);
+                    //Toast.makeText(getBaseContext(), "" + result.get(0).getMsg(), Toast.LENGTH_LONG);
+                    result.get(0).show();
+                }
+            }
+
+            //callback when failed requesting
+            @Override
+            public void onError(Throwable throwable) {
+                System.out.println("Failed to connect, cause:" + throwable.getCause().toString() + "message" + throwable.getLocalizedMessage().toString());
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d("rxjava", "success");
+            }
+        });
+    }
+
+    public void getProduct(String upc) {
+        Call<List<Product>> call = getMyRequester().getProduct(upc);
+
+        //(async) send http request
+        call.enqueue(new Callback<List<Product>>() {
+            //callback when succeed requesting
+            @Override
+            public void onResponse(Call<List<Product>> call, Response<List<Product>> responses) {
+                // process return data
                 if(responses.body() == null){
                     //Toast.makeText(getBaseContext)
                     Log.d("From getrequest","responses are null");
                 }
                 else {
                     Log.d("GR:responses: ", responses.body().toString());
-                    mMyResults = responses.body();
-                    Log.d("GR:size of mMyRequest", Integer.toString(mMyResults.size()));
-                    mMyResults.get(0).show();
+                    productResults = responses.body();
+                    Log.d("GRbyUPC:size mMyRequest", Integer.toString(productResults.size()));
+                    productResults.get(0).show();
                 }
             }
 
-            //请求失败时回调
+            //callback when failed requesting
             @Override
-            public void onFailure(Call<List<MyRequest>> call, Throwable throwable) {
+            public void onFailure(Call<List<Product>> call, Throwable throwable) {
                 System.out.println("Failed to connect, cause:" + throwable.getCause().toString() + "message" + throwable.getLocalizedMessage().toString());
             }
         });
     }
 
-    public void requestByUpc(String upc) {
-        //对 发送请求 进行封装
+    public void createProduct(String upc, String name, int category, String picture) {
 
-        Call<List<MyRequest>> call = getMyRequester().getCallByUpc(upc);
+        Call<List<Product>> call = getMyRequester().createProduct(upc, name, category, picture);
 
-        //步骤6:发送网络请求(异步)
-        call.enqueue(new Callback<List<MyRequest>>() {
-            //请求成功时回调
+
+        //(async) send http request
+        call.enqueue(new Callback<List<Product>>() {
+            //callback when succeed requesting
             @Override
-            public void onResponse(Call<List<MyRequest>> call, Response<List<MyRequest>> responses) {
-                // 步骤7：处理返回的数据结果
+            public void onResponse(Call<List<Product>> call, Response<List<Product>> responses) {
+                // process return data
                 if(responses.body() == null){
                     //Toast.makeText(getBaseContext)
-                    Log.d("From getrequest","responses are null");
+                    Log.d("From onResponse","response.body() is null");
                 }
                 else {
-                    Log.d("GR:responses: ", responses.body().toString());
-                    mMyResults = responses.body();
-                    Log.d("GRbyUPC:size mMyRequest", Integer.toString(mMyResults.size()));
-                    mMyResults.get(0).show();
+                    productResults = responses.body();
+                    Log.d("GR:size of mMyRequest", Integer.toString(productResults.size()));
+                    productResults.get(0).show();
                 }
             }
 
-            //请求失败时回调
+            //callback when failed requesting
             @Override
-            public void onFailure(Call<List<MyRequest>> call, Throwable throwable) {
-                System.out.println("Failed to connect, cause:" + throwable.getCause().toString() + "message" + throwable.getLocalizedMessage().toString());
-            }
-        });
-    }
-
-    public void reqCreateProduct(String upc, String name, String category, String picture) {
-
-        //对 发送请求 进行封装
-
-
-        Call<List<MyRequest>> call = getMyRequester().createProduct(upc, name, category, picture);
-        //Call<MyRequest> call = request.getCall();
-
-        //步骤6:发送网络请求(异步)
-        call.enqueue(new Callback<List<MyRequest>>() {
-            //请求成功时回调
-            @Override
-            public void onResponse(Call<List<MyRequest>> call, Response<List<MyRequest>> responses) {
-                // 步骤7：处理返回的数据结果
-                if(responses.body() == null){
-                    //Toast.makeText(getBaseContext)
-                    Log.d("From getrequest","response.body() is null");
-                }
-                else {
-                    //response.body().show();
-                    Log.d("GR:responses: ", responses.body().toString());
-                    mMyResults = responses.body();
-                    Log.d("GR:size of mMyRequest", Integer.toString(mMyResults.size()));
-                    mMyResults.get(0).show();
-                }
-            }
-
-            //请求失败时回调
-            @Override
-            public void onFailure(Call<List<MyRequest>> call, Throwable throwable) {
+            public void onFailure(Call<List<Product>> call, Throwable throwable) {
                 System.out.println("Failed to connect");
             }
         });
     }
 
-    public void testConnection() {
+    public void updateProductName(String upc, String newName) {
 
-        //对 发送请求 进行封装
-
-
-        Call<List<MyRequest>> call = getMyRequester().getCalls();
+        //Call<List<Product>> call = getMyRequester().getCalls();
         //Call<MyRequest> call = request.getCall();
 
-        //步骤6:发送网络请求(异步)
+        //(async) send http request
 //        call.enqueue(new Callback<MyRequest>() {
-//            //请求成功时回调
+//            //callback when succeed requesting
 //            @Override
 //            public void onResponse(Call<MyRequest> call, Response<MyRequest> response) {
-//                // 步骤7：处理返回的数据结果
+//                // process return data
 //                if(response.body() == null){
 //                    //Toast.makeText(getBaseContext)
 //                    Log.d("From getrequest","response.body() is null");
@@ -167,7 +252,7 @@ public class GetRequest {
 //                }
 //            }
 //
-//            //请求失败时回调
+//             //callback when failed requesting
 //            @Override
 //            public void onFailure(Call<MyRequest> call, Throwable throwable) {
 //                System.out.println("Failed to connect" );

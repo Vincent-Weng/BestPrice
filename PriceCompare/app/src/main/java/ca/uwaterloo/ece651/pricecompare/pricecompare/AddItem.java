@@ -52,13 +52,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import ca.uwaterloo.ece651.pricecompare.DataReq.GetRequest;
-import ca.uwaterloo.ece651.pricecompare.DataReq.GetRequest_Interface;
-import ca.uwaterloo.ece651.pricecompare.DataReq.MyRequest;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import ca.uwaterloo.ece651.pricecompare.DataReq.*;
+import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Product;
+import ca.uwaterloo.ece651.pricecompare.DataReq.http.ApiMethods;
 
 
 class RetrieveURLContent extends AsyncTask<String, Void, String> {
@@ -110,12 +106,13 @@ public class AddItem extends AppCompatActivity {
     private Uri imageUri;
     private ImageView image;
     private Button categorySelectButton;
-    private String categorySelected;
+    private int categorySelected;
     private Button storeSelectButton;
     private Button nowAddButton;
     private String storeSelected;
     private EditText textUPC;
     private EditText textName;
+    List<Product> showup;
     PopupWindow popupPhotoWindow;
     PopupWindow popupCategorySelectWindow;
     PopupWindow popupStoreSelectWindow;
@@ -132,41 +129,6 @@ public class AddItem extends AppCompatActivity {
     private HashMap<String, List<Double>> stores = new HashMap<>();
 
     // Utility functions
-    //http request
-    public void reqCreateProduct(String upc, String name, String category, String picture) {
-
-        //步骤4:创建Retrofit对象
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://ece651.us-east-2.elasticbeanstalk.com/") // 设置 网络请求 Url
-                .addConverterFactory(GsonConverterFactory.create()) //设置使用Gson解析(记得加入依赖)
-                .build();
-
-        // 步骤5:创建 网络请求接口 的实例
-        GetRequest_Interface request = retrofit.create(GetRequest_Interface.class);
-
-        //对 发送请求 进行封装
-
-
-        Call<List<MyRequest>> call = request.createProduct(upc, name, category, picture);
-        //Call<MyRequest> call = request.getCall();
-
-        //步骤6:发送网络请求(异步)
-        call.enqueue(new Callback<List<MyRequest>>() {
-            //请求成功时回调
-            @Override
-            public void onResponse(Call<List<MyRequest>> call, Response<List<MyRequest>> response) {
-                // 步骤7：处理返回的数据结果
-                //response.body().show();
-                Toast.makeText(getBaseContext(), "I got a response: " + response.toString(), Toast.LENGTH_LONG);
-            }
-
-            //请求失败时回调
-            @Override
-            public void onFailure(Call<List<MyRequest>> call, Throwable throwable) {
-                System.out.println("Failed to connect");
-            }
-        });
-    }
 
     private void addimage() {
         View popupPhotoView = View.inflate(this, R.layout.popup_photo_window, null);
@@ -270,32 +232,33 @@ public class AddItem extends AppCompatActivity {
 
         btEntertainment.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_entertainment));
-            categorySelected = getResources().getString(R.string.cat_entertainment);
+            //categorySelected = "Entertainment";
+            categorySelected = 0;  //0: entertainment
             popupCategorySelectWindow.dismiss();
         });
         btFood.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_food));
-            categorySelected = getResources().getString(R.string.cat_food);
+            categorySelected = 1; //1: Food
             popupCategorySelectWindow.dismiss();
         });
         btDrink.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_drink));
-            categorySelected = getResources().getString(R.string.cat_drink);
+            categorySelected = 2; //drink;
             popupCategorySelectWindow.dismiss();
         });
         btHome.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_home));
-            categorySelected = getResources().getString(R.string.cat_home);
+            categorySelected = 3; //getResources().getString(R.string.cat_home);
             popupCategorySelectWindow.dismiss();
         });
         btWellness.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_wellness));
-            categorySelected = getResources().getString(R.string.cat_wellness);
+            categorySelected = 4;// getResources().getString(R.string.cat_wellness);
             popupCategorySelectWindow.dismiss();
         });
         btOffice.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_office));
-            categorySelected = getResources().getString(R.string.cat_office);
+            categorySelected = 5;//getResources().getString(R.string.cat_office);
             popupCategorySelectWindow.dismiss();
         });
         btCancel.setOnClickListener(v -> {
@@ -559,37 +522,34 @@ public class AddItem extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+
         //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.action_done: {
-
                 //this.finish();
                 //When all the inputs are done, click '√'
                 GetRequest accessor = new GetRequest();
                 String testUri = "Iknownothing";
                 String testUPC = "5770022296";
                 String testUPC2 = "12345678910";
+                String testUPCx = "1";
                 String testName = "water";
-                String testCategory = "Food";
-                //accessor.reqCreateProduct(textUPC.getText().toString(), textName.getText().toString(), categorySelected, testUri);
-                //accessor.reqCreateProduct(testUPC, testName, testCategory, testUri);
-                accessor.requestByUpc(testUPC2);
-                List<MyRequest> results = accessor.getMyRequest();
-                if(accessor.getMyRequest() != null) {
-                    if(results.size() == 0) {
-                        Log.d("AddItem: size of list:", "0");
-                    }
-                    else {
-                        Log.d("AddItem: json object:", accessor.getMyRequest().get(0).toString());
-                    }
+                int testCategory = 2;
 
-                }
-//                else  if (accessor.getMyRequest().size() == 0) {
-//                    Log.d("the size of the list:", "0");
-//                }
-                else {
-                    Log.d("AddItem:getmyRequest():", "returns null List.");
-                }
+
+                ObserverOnNextListener<List<Product>> listener = new ObserverOnNextListener<List<Product>>() {
+                    @Override
+                    public void onNext(List<Product> products) {
+                        Toast.makeText(getBaseContext(), "AddI" + products.get(0).getMsg(), Toast.LENGTH_LONG);
+                        textName.setText(products.get(0).getName());
+                        textUPC.setText(products.get(0).getUPC());
+                        Log.d("additem","" + products.get(0).getMsg());
+                    }
+                };
+                ApiMethods.createProduct(new MyObserver<List<Product>> (this, listener));
+
+
+//---------------------------------------------------------------------------
                 break;
             }
             case R.id.action_delete: {
