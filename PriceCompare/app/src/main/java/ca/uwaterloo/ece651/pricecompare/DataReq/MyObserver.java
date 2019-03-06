@@ -29,7 +29,7 @@ public class MyObserver<T> implements Observer<T> {
 
     @Override
     public void onError(Throwable e) {
-        Log.e(TAG, "onError");
+        Log.e(TAG, "onError:" + e.getLocalizedMessage());
         //add business here
     }
 

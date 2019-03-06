@@ -51,7 +51,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import ca.uwaterloo.ece651.pricecompare.DataReq.GetRequest;
 import ca.uwaterloo.ece651.pricecompare.DataReq.*;
 import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Product;
 import ca.uwaterloo.ece651.pricecompare.DataReq.http.ApiMethods;
@@ -103,16 +102,15 @@ public class AddItem extends AppCompatActivity {
     public static final int REQUEST_ALBUM = 2;
     private static int REQUEST_PERMISSION_CODE = 3;
     private File output;
+    //TODO: please give imageUri a default value
     private Uri imageUri;
     private ImageView image;
     private Button categorySelectButton;
-    private int categorySelected;
+    private int categorySelected = 0;
     private Button storeSelectButton;
-    private Button nowAddButton;
     private String storeSelected;
     private EditText textUPC;
     private EditText textName;
-    List<Product> showup;
     PopupWindow popupPhotoWindow;
     PopupWindow popupCategorySelectWindow;
     PopupWindow popupStoreSelectWindow;
@@ -528,25 +526,25 @@ public class AddItem extends AppCompatActivity {
             case R.id.action_done: {
                 //this.finish();
                 //When all the inputs are done, click '√'
-                GetRequest accessor = new GetRequest();
                 String testUri = "Iknownothing";
                 String testUPC = "5770022296";
                 String testUPC2 = "12345678910";
                 String testUPCx = "1";
                 String testName = "water";
                 int testCategory = 2;
-
-
+//---------------------request and data received----------------------------
                 ObserverOnNextListener<List<Product>> listener = new ObserverOnNextListener<List<Product>>() {
                     @Override
                     public void onNext(List<Product> products) {
-                        Toast.makeText(getBaseContext(), "AddI" + products.get(0).getMsg(), Toast.LENGTH_LONG);
-                        textName.setText(products.get(0).getName());
-                        textUPC.setText(products.get(0).getUPC());
+                        //Do data manipulation here
+                        //TODO: context, the parameter for Toast.makeText()?
+                        //Toast.makeText(getBaseContext(), "AddI" + products.get(0).getMsg(), Toast.LENGTH_LONG);
                         Log.d("additem","" + products.get(0).getMsg());
                     }
                 };
-                ApiMethods.createProduct(new MyObserver<List<Product>> (this, listener));
+                ApiMethods.createProduct(new MyObserver<List<Product>> (this, listener),
+                        //parameters for createProduct: String, String, int, String
+                        textUPC.getText().toString(), textName.getText().toString(), categorySelected, (imageUri != null)?imageUri.toString() : testUri);
 
 
 //---------------------------------------------------------------------------

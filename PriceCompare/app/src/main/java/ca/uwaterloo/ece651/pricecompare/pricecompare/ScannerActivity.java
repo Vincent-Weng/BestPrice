@@ -13,8 +13,6 @@ import android.support.v4.content.ContextCompat;
 import me.dm7.barcodescanner.zbar.Result;
 import me.dm7.barcodescanner.zbar.ZBarScannerView;
 
-import ca.uwaterloo.ece651.pricecompare.DataReq.GetRequest;
-
 public class ScannerActivity extends Activity implements ZBarScannerView.ResultHandler {
 
     private ZBarScannerView mScannerView;

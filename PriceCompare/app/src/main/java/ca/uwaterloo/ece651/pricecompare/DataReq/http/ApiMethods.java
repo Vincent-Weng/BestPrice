@@ -23,8 +23,9 @@ public class ApiMethods {
         ApiSubscribe(Api.getApiService().getCalls(), observer);
     }
 
-    public static void createProduct(Observer<List<Product>> observer) {
-        ApiSubscribe(Api.getApiService().getCalls(), observer);
+    public static void createProduct(Observer<List<Product>> observer,
+                                     String upc, String name, int category, String picture) {
+        ApiSubscribe(Api.getApiService().createProduct(upc, name, category, picture), observer);
     }
 
     public static void getProduct(Observer<List<Product>> observer,
