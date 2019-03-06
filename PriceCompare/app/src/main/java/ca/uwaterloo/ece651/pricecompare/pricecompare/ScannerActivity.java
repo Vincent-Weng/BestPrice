@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -44,6 +45,8 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
     @Override
     public void handleResult(Result result) {
 //        //The item does not exist in the database, go to AddItem class
+          Log.d("test result", result.getContents().toString());
+
 //        Intent intent = new Intent(this, AddItem.class);
 //        String message = result.getContents();
 //        intent.putExtra("upc", message);
