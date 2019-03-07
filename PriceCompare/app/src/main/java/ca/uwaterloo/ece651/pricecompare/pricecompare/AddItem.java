@@ -52,7 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import ca.uwaterloo.ece651.pricecompare.DataReq.*;
-import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Product;
+import ca.uwaterloo.ece651.pricecompare.DataReq.Model.*;
 import ca.uwaterloo.ece651.pricecompare.DataReq.http.ApiMethods;
 
 
@@ -111,6 +111,7 @@ public class AddItem extends AppCompatActivity {
     private String storeSelected;
     private EditText textUPC;
     private EditText textName;
+    private EditText textPrice;
     PopupWindow popupPhotoWindow;
     PopupWindow popupCategorySelectWindow;
     PopupWindow popupStoreSelectWindow;
@@ -461,7 +462,7 @@ public class AddItem extends AppCompatActivity {
         }
 
         // Keep the dollar sign of the price textEdit - Han
-        final EditText textPrice = (EditText) findViewById(R.id.editText_price);
+        textPrice = (EditText) findViewById(R.id.editText_price);
         textPrice.setText("$");
         Selection.setSelection(textPrice.getText(), textPrice.getText().length());
         textPrice.addTextChangedListener(new TextWatcher() {
@@ -499,6 +500,7 @@ public class AddItem extends AppCompatActivity {
         //if (activity.equals("scanner")) {
             getNearestStore();
             storeSelectButton.setText(nearestStore);
+            storeSelected = nearestStore;
         //}
         //else if (activity.equals("display")) {
         //    storeSelectButton.setText(store_string);
@@ -533,20 +535,25 @@ public class AddItem extends AppCompatActivity {
                 String testName = "water";
                 int testCategory = 2;
 //---------------------request and data received----------------------------
-                ObserverOnNextListener<List<Product>> listener = new ObserverOnNextListener<List<Product>>() {
+
+                storeSelected.replaceAll("\\s", "%20");
+                String strPrice = textPrice.getText().toString().substring(1);
+                String url = String.format("/Item/Insert?item=%d?=%d?=%s?=%s?=%d?=%s?=%f",
+                        0,0,textUPC.getText().toString(), textName.getText().toString(), categorySelected, storeSelected, Float.parseFloat(strPrice));
+                Log.d("url:", url);
+                Log.d("price:", strPrice);
+                ObserverOnNextListener<List<Item>> itemlistener = new ObserverOnNextListener<List<Item>>() {
                     @Override
-                    public void onNext(List<Product> products) {
+                    public void onNext(List<Item> items) {
                         //Do data manipulation here
                         //TODO: context, the parameter for Toast.makeText()?
                         //Toast.makeText(getBaseContext(), "AddI" + products.get(0).getMsg(), Toast.LENGTH_LONG);
-                        Log.d("additem","" + products.get(0).getMsg());
+                        Log.d("stock","" + items.get(0).getMsg());
                     }
                 };
-                ApiMethods.createProduct(new MyObserver<List<Product>> (this, listener),
-                        //parameters for createProduct: String, String, int, String
-                        textUPC.getText().toString(), textName.getText().toString(), categorySelected, (imageUri != null)?imageUri.toString() : testUri);
 
-
+                ApiMethods.createItem(new MyObserver<List<Item>> (this, itemlistener),
+                        url);
 //---------------------------------------------------------------------------
                 break;
             }
