@@ -86,4 +86,14 @@ public class ApiMethods {
         ApiSubscribe(Api.getApiService().deleteStore(storename), observer);
     }
 
+    //---------------------Item------------------------
+//    public static void createItem(Observer<List<Item>> observer,
+//                                   int newstoreflag, int productnamechangeflag, String upc, String productname, int category, String storename, double price) {
+//        ApiSubscribe(Api.getApiService().createItem(newstoreflag, productnamechangeflag, upc, productname, category, storename, price), observer);
+//    }
+
+    public static void createItem(Observer<List<Item>> observer,
+                                String url){
+        ApiSubscribe(Api.getApiService().createItem(url), observer);
+    }
 }

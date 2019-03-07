@@ -2,9 +2,7 @@ package ca.uwaterloo.ece651.pricecompare.DataReq.http;
 
 import java.util.List;
 
-import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Product;
-import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Stock;
-import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Store;
+import ca.uwaterloo.ece651.pricecompare.DataReq.Model.*;
 import io.reactivex.Observable;
 import retrofit2.http.*;
 
@@ -143,14 +141,32 @@ public interface ApiService {
 
     //-------------------Item------------------------------
     //TODO: createItem()??
-//
-//    @GET("/Item/Insert/")
-//    Call<List<Item>> createProduct(
-//                                        @Query("newstoreflag") String upc,
-//                                        @Query("productname") String name,
-//                                        @Query("UPC") String upc,
-//                                      @Query("productname") String name,
-//                                      @Query("category") int category,
-//                                      @Query("picture") String picture);
+
+    @GET
+    Observable<List<Item>> createItem(@Url String url);
+
+
+
+
+
+//    @GET("/Item/Insert?item={newstoreflag}?={productnamechangeflag}?={UPC}?={productname}?={category}?={storename}?={price}")
+//    Observable<List<Item>> createItem(
+//                                        @Path(value = "newstoreflag", encoded = true) int flag,
+//                                        @Query(value ="productnamechangeflag", encoded = true) int productnamechangeflag,
+//                                        @Query(value ="UPC", encoded = true) String upc,
+//                                      @Query(value ="productname", encoded = true) String name,
+//                                      @Query(value ="category", encoded = true) int category,
+//                                      @Query(value ="storename", encoded = true) String storename,
+//                                        @Query(value ="price", encoded = true) double price);
+
+//    @GET("/Item/Insert?item={newstoreflag}?={productnamechangeflag}?={UPC}?={productname}?={category}?={storename}?={price}")
+//    Observable<List<Item>> createItem(
+//            @Path("newstoreflag") int flag,
+//            @Path("productnamechangeflag") int productnamechangeflag,
+//            @Query("UPC") String upc,
+//            @Query("productname") String name,
+//            @Query("category") int category,
+//            @Query("storename") String storename,
+//            @Query("price") double price);
 
 }
