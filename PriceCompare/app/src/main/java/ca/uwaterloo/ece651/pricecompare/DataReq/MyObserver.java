@@ -23,7 +23,7 @@ public class MyObserver<T> implements Observer<T> {
     }
 
     @Override
-    public void onNext(T t) {
+    public void onNext(T t){
         listener.onNext(t);
     }
 

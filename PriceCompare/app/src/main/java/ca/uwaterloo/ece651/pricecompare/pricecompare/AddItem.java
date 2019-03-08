@@ -97,6 +97,7 @@ class RetrieveURLContent extends AsyncTask<String, Void, String> {
     }
 }
 
+
 public class AddItem extends AppCompatActivity {
     // Member variables
     public static final int REQUEST_CAMERA = 1;
