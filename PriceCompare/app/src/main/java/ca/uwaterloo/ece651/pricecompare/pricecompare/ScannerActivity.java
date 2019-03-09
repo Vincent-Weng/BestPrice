@@ -63,11 +63,6 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
         Log.d("test result", UPC);
 
         ObserverOnNextListener<List<Product>> ProductListener = products -> {
-            //Do data manipulation here
-            //TODO: context, the parameter for Toast.makeText()?
-            Toast addItemToast = Toast.makeText(this, "GetProducts: " + products.get(0).getMsg(),
-                    Toast.LENGTH_SHORT);
-            addItemToast.show();
             //product doesn't exists in the database
             if (products.get(0).getMsg() != null) {
                 Log.d("item", "" + products.get(0).getMsg());

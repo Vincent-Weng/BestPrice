@@ -462,13 +462,15 @@ public class AddItem extends AppCompatActivity {
         textUPC.setText(upc_string);
 
         // Set produce name textEdit
-        textName = (EditText) findViewById(R.id.edt_add_name);
-        try {
-            String name = new RetrieveURLContent().execute(ITEM_REQUEST_URL + upc_string).get();
+        if (activity.equals("scanner")) {
+            textName = (EditText) findViewById(R.id.edt_add_name);
+            try {
+                String name = new RetrieveURLContent().execute(ITEM_REQUEST_URL + upc_string).get();
 
-            textName.setText(name);
-        } catch (Exception e) {
-            Log.v("ASYNC_ERROR", e.toString());
+                textName.setText(name);
+            } catch (Exception e) {
+                Log.v("ASYNC_ERROR", e.toString());
+            }
         }
 
         // Keep the dollar sign of the price textEdit - Han
@@ -560,7 +562,6 @@ public class AddItem extends AppCompatActivity {
                         //Toast.makeText(getBaseContext(), "AddI" + products.get(0).getMsg(), Toast.LENGTH_LONG);
                         Log.d("item", "" + items.get(0).getMsg());
                     };
-
 
 
                     String url = String.format("/Item/Insert?item=%d?=%d?=%s?=%s?=%d?=%s?=%f",

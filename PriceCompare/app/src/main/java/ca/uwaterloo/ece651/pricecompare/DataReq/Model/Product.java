@@ -63,8 +63,6 @@ public class Product{
     }
 
     public String getMsg() {
-//        String listMsg
-//        if (getUPC() == null) return msg;
         return msg;
     }
 
