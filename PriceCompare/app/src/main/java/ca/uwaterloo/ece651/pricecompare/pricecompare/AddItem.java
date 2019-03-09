@@ -115,6 +115,8 @@ public class AddItem extends AppCompatActivity {
     private EditText textUPC;
     private EditText textName;
     private EditText textPrice;
+    private int newStoreFlag = 0;
+    private int productNameChangeFlag = 0;
     PopupWindow popupPhotoWindow;
     PopupWindow popupCategorySelectWindow;
     PopupWindow popupStoreSelectWindow;
@@ -461,17 +463,6 @@ public class AddItem extends AppCompatActivity {
         textUPC = (EditText) findViewById(R.id.edt_add_UPC);
         textUPC.setText(upc_string);
 
-        // Set produce name textEdit
-        if (activity.equals("scanner")) {
-            textName = (EditText) findViewById(R.id.edt_add_name);
-            try {
-                String name = new RetrieveURLContent().execute(ITEM_REQUEST_URL + upc_string).get();
-
-                textName.setText(name);
-            } catch (Exception e) {
-                Log.v("ASYNC_ERROR", e.toString());
-            }
-        }
 
         // Keep the dollar sign of the price textEdit - Han
         textPrice = (EditText) findViewById(R.id.editText_price);
@@ -509,15 +500,41 @@ public class AddItem extends AppCompatActivity {
         categorySelectButton.setOnClickListener(v -> selectCategory());
         // Store selection
         storeSelectButton = (Button) findViewById(R.id.button_select_store);
-        //if (activity.equals("scanner")) {
-        getNearestStore();
-        storeSelectButton.setText(nearestStore);
-        storeSelected = nearestStore;
-        //}
-        //else if (activity.equals("display")) {
-        //    storeSelectButton.setText(store_string);
-        //}
         storeSelectButton.setOnClickListener(v -> selectStore());
+
+        textName = (EditText) findViewById(R.id.edt_add_name);
+
+        //the activity is from display
+        if (activity.equals("display")) {
+            // get product information from database and display
+            // Set produce name
+            ObserverOnNextListener<List<Product>> ProductListener = products -> {
+                EditText textName = findViewById(R.id.edt_add_name);
+                textName.setText(products.get(0).getName());
+                categorySelectButton.setText(products.get(0).getCategory());
+            };
+            ApiMethods.getProduct(new MyObserver<>(this, ProductListener), upc_string);
+            storeSelected = store_string;
+            storeSelectButton.setText(store_string);
+            categorySelectedBoolean = true;
+            productNameChangeFlag = 1;
+
+        }
+        //the activity is from scanner
+        else {
+            // Set the nearest store
+            getNearestStore();
+            storeSelectButton.setText(nearestStore);
+            storeSelected = nearestStore;
+            // get product name from the website and set
+            try {
+                String name = new RetrieveURLContent().execute(ITEM_REQUEST_URL + upc_string).get();
+                textName.setText(name);
+            } catch (Exception e) {
+                Log.v("ASYNC_ERROR", e.toString());
+            }
+        }
+
     }
 
     @Override
@@ -544,8 +561,6 @@ public class AddItem extends AppCompatActivity {
 //---------------------request and data received----------------------------
 
                 storeSelected.replaceAll("\\s", "%20");
-                int newStoreFlag = 0;
-                int productNameChangeFlag = 0;
                 String UPC = textUPC.getText().toString();
                 String productName = textName.getText().toString();
                 String price = textPrice.getText().toString().substring(1);
@@ -562,7 +577,6 @@ public class AddItem extends AppCompatActivity {
                         //Toast.makeText(getBaseContext(), "AddI" + products.get(0).getMsg(), Toast.LENGTH_LONG);
                         Log.d("item", "" + items.get(0).getMsg());
                     };
-
 
                     String url = String.format("/Item/Insert?item=%d?=%d?=%s?=%s?=%d?=%s?=%f",
                             newStoreFlag, productNameChangeFlag, UPC, productName, categorySelected, storeSelected, Float.parseFloat(price));

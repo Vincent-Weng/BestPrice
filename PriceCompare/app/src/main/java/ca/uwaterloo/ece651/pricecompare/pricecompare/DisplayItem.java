@@ -83,7 +83,7 @@ public class DisplayItem extends AppCompatActivity {
             table.addView(newTextStore);
             TextView newTextPrice = new TextView(this);
             // if the price exists in the database, show the pircetext
-            ObserverOnNextListener<List<Stock>> ProductListener = stocks -> {
+            ObserverOnNextListener<List<Stock>> StockListener = stocks -> {
                 //product doesn't exists in the database
                 if (stocks.get(0).getMsg() != null) {
                     newTextPrice.setBackgroundColor(getResources().getColor(R.color.white));
@@ -100,7 +100,7 @@ public class DisplayItem extends AppCompatActivity {
                 }
             };
             table.addView(newTextPrice);
-            ApiMethods.getStock(new MyObserver<>(this, ProductListener), upc,store);
+            ApiMethods.getStock(new MyObserver<>(this, StockListener), upc,store);
 
         }
 
