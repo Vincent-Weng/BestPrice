@@ -127,16 +127,22 @@ public class MainActivity extends AppCompatActivity {
     }
     private void initStore(){
         for (int i = 0; i < 2; i++){
-            Store sobeys = new Store("Sobeys", R.drawable.sobeys);
-            storeList.add(sobeys);
-            Store tnt = new Store("TNT",R.drawable.tnt);
+            Store sobeys1 = new Store("Sobeys Columbia", R.drawable.sobeys);
+            storeList.add(sobeys1);
+            Store zehrs1 = new Store("Zehrs Conestoga",R.drawable.zehrs);
+            storeList.add(zehrs1);
+            Store tnt = new Store("T&T Waterloo",R.drawable.tnt);
             storeList.add(tnt);
-            Store wcentral = new Store("WCentral", R.drawable.wcentral);
+            Store wcentral = new Store("Waterloo Central", R.drawable.wcentral);
             storeList.add(wcentral);
-            Store walmart  = new Store("Walmart", R.drawable.walmart);
+            Store walmart  = new Store("Walmart Waterloo", R.drawable.walmart);
             storeList.add(walmart);
-            Store zehrs = new Store("Zehrs",R.drawable.zehrs);
-            storeList.add(zehrs);
+            Store foodBasic  = new Store("Food Basics Laurelwood", R.drawable.foodbasics);
+            storeList.add(foodBasic);
+            Store sobeys2 = new Store("Sobeys Bridgeport", R.drawable.sobeys);
+            storeList.add(sobeys2);
+            Store zehrs2 = new Store("Zehrs Lincoln",R.drawable.zehrs);
+            storeList.add(zehrs2);
         }
     }
     @Override
@@ -200,6 +206,13 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(View v) {
                         int position = holder.getAdapterPosition();
                         Store store = mStoreList.get(position);
+
+                        Intent int4 = new Intent(MainActivity.this,DisplayCategory.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("Category","Food");
+                        int4.putExtras(bundle);
+                        startActivity(int4);
+
                         Toast.makeText(v.getContext(),"you clicked image"+ store.getName(),Toast.LENGTH_SHORT).show();
                     }
 
