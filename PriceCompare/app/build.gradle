@@ -38,4 +38,21 @@ dependencies {
     implementation group: 'org.json', name: 'json', version: '20090211'
     implementation "com.google.android.gms:play-services-location:15.0.1"
 
+
+    //added by dan
+    //Retrofit
+    compile 'com.squareup.retrofit2:retrofit:2.0.2'
+    //Okhttp
+    compile 'com.squareup.okhttp3:okhttp:3.1.2'
+    //Gson
+    compile 'com.squareup.retrofit2:converter-gson:2.0.2'
+    //rxJava
+    //compile 'io.reactivex.rxjava2:rxjava:2.0.1'
+    //compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+
+    compile 'io.reactivex.rxjava2:rxjava:2.0.1'
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    //for retrofit to work with rxjava
+    //compile 'com.squareup.retrofit2:adpater-rxjava2:2.4.0'
+    compile 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
 }

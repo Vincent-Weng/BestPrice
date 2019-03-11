@@ -25,12 +25,18 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Product;
+import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Stock;
+import ca.uwaterloo.ece651.pricecompare.DataReq.MyObserver;
+import ca.uwaterloo.ece651.pricecompare.DataReq.ObserverOnNextListener;
+import ca.uwaterloo.ece651.pricecompare.DataReq.http.ApiMethods;
+
 public class DisplayItem extends AppCompatActivity {
     private Button displayStoreButton;
     private HashMap<String, List<Double>> stores = new HashMap<>();
     PopupWindow popupStoreSelectWindow;
 
-    public void displayStore(String upc){
+    public void displayStore(String upc) {
 
         View popupStoreView = View.inflate(this, R.layout.popup_store_display_window, null);
         LinearLayout storeScrollView = popupStoreView.findViewById(R.id.storeDisplayScrollLayout);
@@ -40,67 +46,61 @@ public class DisplayItem extends AppCompatActivity {
         storeScrollView.addView(table);
 
         for (String store : stores.keySet()) {
-
-//            TableRow tablerow = new TableRow(this);
-//            table.addView(tablerow);
-
             Drawable img = getResources().getDrawable(R.drawable.ic_store_black_24dp);
-            if(store.toLowerCase().contains("sobey"))
-                img = getResources().getDrawable( R.drawable.sobeys );
-            else if(store.toLowerCase().contains("food basics"))
-                img = getResources().getDrawable( R.drawable.foodbasics );
-            else if(store.toLowerCase().contains("t&t"))
-                img = getResources().getDrawable( R.drawable.tnt );
-            else if(store.toLowerCase().contains("walmart"))
-                img = getResources().getDrawable( R.drawable.walmart );
-            else if(store.toLowerCase().contains("waterloo central"))
-                img = getResources().getDrawable( R.drawable.wcentral );
-            else if(store.toLowerCase().contains("zehrs"))
-                img = getResources().getDrawable( R.drawable.zehrs );
+            if (store.toLowerCase().contains("sobey"))
+                img = getResources().getDrawable(R.drawable.sobeys);
+            else if (store.toLowerCase().contains("food basics"))
+                img = getResources().getDrawable(R.drawable.foodbasics);
+            else if (store.toLowerCase().contains("t&t"))
+                img = getResources().getDrawable(R.drawable.tnt);
+            else if (store.toLowerCase().contains("walmart"))
+                img = getResources().getDrawable(R.drawable.walmart);
+            else if (store.toLowerCase().contains("waterloo central"))
+                img = getResources().getDrawable(R.drawable.wcentral);
+            else if (store.toLowerCase().contains("zehrs"))
+                img = getResources().getDrawable(R.drawable.zehrs);
 
-            img.setBounds( 0, 0, 100, 100 );
+            img.setBounds(0, 0, 100, 100);
 
             TextView newTextStore = new TextView(this);
-            newTextStore.setText(store+":");
+            newTextStore.setText(store + ":");
             newTextStore.setBackgroundColor(getResources().getColor(R.color.white));
-            newTextStore.setCompoundDrawables( img, null, null, null );
+            newTextStore.setCompoundDrawables(img, null, null, null);
             newTextStore.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
             newTextStore.setPaddingRelative(130, 0, 0, 0);
             newTextStore.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
             newTextStore.setTextSize(17);
             newTextStore.setTextColor(getResources().getColor(R.color.blue));
-            newTextStore.setPaintFlags(newTextStore.getPaintFlags()| Paint.UNDERLINE_TEXT_FLAG);
+            newTextStore.setPaintFlags(newTextStore.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
             newTextStore.setCompoundDrawablePadding(21);
-            newTextStore.setOnClickListener(v->{Intent intent = new Intent(this, AddItem.class);
-                intent.putExtra("upc",upc);
-                intent.putExtra("activity","display");
-                intent.putExtra("store",store);
-                startActivity(intent);});
+            newTextStore.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AddItem.class);
+                intent.putExtra("upc", upc);
+                intent.putExtra("activity", "display");
+                intent.putExtra("store", store);
+                startActivity(intent);
+            });
             table.addView(newTextStore);
-
-            // if the price exists in the database, show the pircetext
             TextView newTextPrice = new TextView(this);
-            newTextPrice.setBackgroundColor(getResources().getColor(R.color.white));
-            newTextPrice.setPaddingRelative(230, 0, 0, 0);
-            newTextPrice.setTextSize(17);
-//            newTextPrice.setGravity(Gravity.RIGHT);
-            newTextPrice.setText("$120");
+            // if the price exists in the database, show the pircetext
+            ObserverOnNextListener<List<Stock>> StockListener = stocks -> {
+                //product doesn't exists in the database
+                if (stocks.get(0).getMsg() != null) {
+                    newTextPrice.setBackgroundColor(getResources().getColor(R.color.white));
+                    newTextPrice.setPaddingRelative(230, 0, 0, 0);
+                    newTextPrice.setTextSize(17);
+                    newTextPrice.setText("no pirce yet");
+                }
+                //exists
+                else {
+                    newTextPrice.setBackgroundColor(getResources().getColor(R.color.white));
+                    newTextPrice.setPaddingRelative(230, 0, 0, 0);
+                    newTextPrice.setTextSize(17);
+                    newTextPrice.setText(String.valueOf(stocks.get(0).getPrice()));
+                }
+            };
             table.addView(newTextPrice);
-
-//            // otherwise show the add button to Add_Item page.
-//            Button newButtonPrice = new Button(this);
-//            img = getResources().getDrawable(R.drawable.ic_add_circle_black_24dp);
-//            img.setBounds( 0, 0, 100, 100 );
-//            newButtonPrice.setCompoundDrawables( img, null, null, null );
-//            newButtonPrice.setPaddingRelative(230, 0, 0, 0);
-//            newButtonPrice.setBackgroundColor(getResources().getColor(R.color.white));
-//            newButtonPrice.setBackground(null);
-//            newButtonPrice.setOnClickListener(v->{Intent intent = new Intent(this, AddItem.class);
-//                intent.putExtra("upc",upc);
-//                intent.putExtra("activity","display");
-//                intent.putExtra("store",store);
-//                startActivity(intent);});
-//            table.addView(newButtonPrice);
+            ApiMethods.getStock(new MyObserver<>(this, StockListener), upc,store);
 
         }
 
@@ -134,12 +134,21 @@ public class DisplayItem extends AppCompatActivity {
 
         //get upc code from scanner and set it to edit_text
         Intent intent = getIntent();
-        String massage = intent.getStringExtra("upc");
-
-        EditText textUPC = (EditText)findViewById(R.id.edt_dis_upc);
-        textUPC.setText(massage);
+        String UPC = intent.getStringExtra("upc");
 
 
+        // get product information from database and display
+        ObserverOnNextListener<List<Product>> ProductListener = products -> {
+            EditText textName = findViewById(R.id.DisplayProductName);
+            textName.setText(products.get(0).getName());
+        };
+        ApiMethods.getProduct(new MyObserver<>(this, ProductListener), UPC);
+
+        //get stock information from database and display
+
+
+        EditText textUPC = findViewById(R.id.edt_dis_upc);
+        textUPC.setText(UPC);
 
         // Add stores. Will be replaced with database visit in the future.
         InputStream inputStream = getResources().openRawResource(R.raw.stores);
@@ -157,8 +166,8 @@ public class DisplayItem extends AppCompatActivity {
 
 
         //View all stores
-        displayStoreButton = (Button)findViewById(R.id.display_store);
-        displayStoreButton.setOnClickListener(v -> displayStore(massage));
+        displayStoreButton = (Button) findViewById(R.id.display_store);
+        displayStoreButton.setOnClickListener(v -> displayStore(UPC));
     }
 
     @Override
