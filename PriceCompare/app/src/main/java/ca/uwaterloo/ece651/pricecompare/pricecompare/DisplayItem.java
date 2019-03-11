@@ -48,17 +48,17 @@ public class DisplayItem extends AppCompatActivity {
         for (String store : stores.keySet()) {
             Drawable img = getResources().getDrawable(R.drawable.ic_store_black_24dp);
             if (store.toLowerCase().contains("sobey"))
-                img = getResources().getDrawable(R.drawable.sobeys);
+                img = getResources().getDrawable(R.drawable.sobeys_inv);
             else if (store.toLowerCase().contains("food basics"))
-                img = getResources().getDrawable(R.drawable.foodbasics);
+                img = getResources().getDrawable(R.drawable.foodbasics_inv);
             else if (store.toLowerCase().contains("t&t"))
-                img = getResources().getDrawable(R.drawable.tnt);
+                img = getResources().getDrawable(R.drawable.tnt_inv);
             else if (store.toLowerCase().contains("walmart"))
-                img = getResources().getDrawable(R.drawable.walmart);
+                img = getResources().getDrawable(R.drawable.walmart_inv);
             else if (store.toLowerCase().contains("waterloo central"))
-                img = getResources().getDrawable(R.drawable.wcentral);
+                img = getResources().getDrawable(R.drawable.wcentral_inv);
             else if (store.toLowerCase().contains("zehrs"))
-                img = getResources().getDrawable(R.drawable.zehrs);
+                img = getResources().getDrawable(R.drawable.zehrs_inv);
 
             img.setBounds(0, 0, 100, 100);
 
