@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#cc4f41</color>
+    <color name="colorPrimary">#CC4F41</color>
     <color name="colorPrimaryDark">#a93d2b</color>
-    <color name="colorAppBackground">#eeeeee</color>
+    <color name="colorAppBackground">#EEEEEE</color>
     <color name="colorAccent">#cc4f41</color>
     <color name="colorHintText">#767676</color>
     <color name="colorIconOnButton">#cc4f41</color>
