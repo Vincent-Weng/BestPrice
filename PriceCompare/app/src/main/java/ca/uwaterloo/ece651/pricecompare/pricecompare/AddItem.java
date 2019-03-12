@@ -51,6 +51,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import ca.uwaterloo.ece651.pricecompare.DataReq.*;
+import ca.uwaterloo.ece651.pricecompare.DataReq.Model.*;
+import ca.uwaterloo.ece651.pricecompare.DataReq.http.ApiMethods;
+
+
 class RetrieveURLContent extends AsyncTask<String, Void, String> {
     private Exception exception;
 
@@ -97,12 +102,16 @@ public class AddItem extends AppCompatActivity {
     public static final int REQUEST_ALBUM = 2;
     private static int REQUEST_PERMISSION_CODE = 3;
     private File output;
+    //TODO: please give imageUri a default value
     private Uri imageUri;
     private ImageView image;
     private Button categorySelectButton;
-    private String categorySelected;
+    private int categorySelected = 0;
     private Button storeSelectButton;
     private String storeSelected;
+    private EditText textUPC;
+    private EditText textName;
+    private EditText textPrice;
     PopupWindow popupPhotoWindow;
     PopupWindow popupCategorySelectWindow;
     PopupWindow popupStoreSelectWindow;
@@ -119,6 +128,7 @@ public class AddItem extends AppCompatActivity {
     private HashMap<String, List<Double>> stores = new HashMap<>();
 
     // Utility functions
+
     private void addimage() {
         View popupPhotoView = View.inflate(this, R.layout.popup_photo_window, null);
         Button bt_album = (Button) popupPhotoView.findViewById(R.id.btn_pop_album);
@@ -139,6 +149,7 @@ public class AddItem extends AppCompatActivity {
 
             }
         });
+
         bt_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -149,6 +160,7 @@ public class AddItem extends AppCompatActivity {
                 }
             }
         });
+
         bt_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -219,32 +231,33 @@ public class AddItem extends AppCompatActivity {
 
         btEntertainment.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_entertainment));
-            categorySelected = getResources().getString(R.string.cat_entertainment);
+            //categorySelected = "Entertainment";
+            categorySelected = 0;  //0: entertainment
             popupCategorySelectWindow.dismiss();
         });
         btFood.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_food));
-            categorySelected = getResources().getString(R.string.cat_food);
+            categorySelected = 1; //1: Food
             popupCategorySelectWindow.dismiss();
         });
         btDrink.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_drink));
-            categorySelected = getResources().getString(R.string.cat_drink);
+            categorySelected = 2; //drink;
             popupCategorySelectWindow.dismiss();
         });
         btHome.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_home));
-            categorySelected = getResources().getString(R.string.cat_home);
+            categorySelected = 3; //getResources().getString(R.string.cat_home);
             popupCategorySelectWindow.dismiss();
         });
         btWellness.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_wellness));
-            categorySelected = getResources().getString(R.string.cat_wellness);
+            categorySelected = 4;// getResources().getString(R.string.cat_wellness);
             popupCategorySelectWindow.dismiss();
         });
         btOffice.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_office));
-            categorySelected = getResources().getString(R.string.cat_office);
+            categorySelected = 5;//getResources().getString(R.string.cat_office);
             popupCategorySelectWindow.dismiss();
         });
         btCancel.setOnClickListener(v -> {
@@ -435,20 +448,21 @@ public class AddItem extends AppCompatActivity {
         String activity = intent.getStringExtra("activity");
 
         // Set UPC textEdit
-        EditText textUPC = (EditText) findViewById(R.id.edt_add_UPC);
+        textUPC = (EditText) findViewById(R.id.edt_add_UPC);
         textUPC.setText(upc_string);
 
         // Set produce name textEdit
+        textName = (EditText) findViewById(R.id.edt_add_name);
         try {
             String name = new RetrieveURLContent().execute(ITEM_REQUEST_URL + upc_string).get();
-            EditText textName = (EditText) findViewById(R.id.edt_add_name);
+
             textName.setText(name);
         } catch (Exception e) {
             Log.v("ASYNC_ERROR", e.toString());
         }
 
         // Keep the dollar sign of the price textEdit - Han
-        final EditText textPrice = (EditText) findViewById(R.id.editText_price);
+        textPrice = (EditText) findViewById(R.id.editText_price);
         textPrice.setText("$");
         Selection.setSelection(textPrice.getText(), textPrice.getText().length());
         textPrice.addTextChangedListener(new TextWatcher() {
@@ -483,13 +497,14 @@ public class AddItem extends AppCompatActivity {
         categorySelectButton.setOnClickListener(v -> selectCategory());
         // Store selection
         storeSelectButton = (Button) findViewById(R.id.button_select_store);
-        if (activity.equals("scanner")) {
+        //if (activity.equals("scanner")) {
             getNearestStore();
             storeSelectButton.setText(nearestStore);
-        }
-        else if (activity.equals("display")) {
-            storeSelectButton.setText(store_string);
-        }
+            storeSelected = nearestStore;
+        //}
+        //else if (activity.equals("display")) {
+        //    storeSelectButton.setText(store_string);
+        //}
         storeSelectButton.setOnClickListener(v -> selectStore());
     }
 
@@ -507,10 +522,39 @@ public class AddItem extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+
         //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.action_done: {
-                this.finish();
+                //this.finish();
+                //When all the inputs are done, click '√'
+                String testUri = "Iknownothing";
+                String testUPC = "5770022296";
+                String testUPC2 = "12345678910";
+                String testUPCx = "1";
+                String testName = "water";
+                int testCategory = 2;
+//---------------------request and data received----------------------------
+
+                storeSelected.replaceAll("\\s", "%20");
+                String strPrice = textPrice.getText().toString().substring(1);
+                String url = String.format("/Item/Insert?item=%d?=%d?=%s?=%s?=%d?=%s?=%f",
+                        0,0,textUPC.getText().toString(), textName.getText().toString(), categorySelected, storeSelected, Float.parseFloat(strPrice));
+                Log.d("url:", url);
+                Log.d("price:", strPrice);
+                ObserverOnNextListener<List<Item>> itemlistener = new ObserverOnNextListener<List<Item>>() {
+                    @Override
+                    public void onNext(List<Item> items) {
+                        //Do data manipulation here
+                        //TODO: context, the parameter for Toast.makeText()?
+                        //Toast.makeText(getBaseContext(), "AddI" + products.get(0).getMsg(), Toast.LENGTH_LONG);
+                        Log.d("stock","" + items.get(0).getMsg());
+                    }
+                };
+
+                ApiMethods.createItem(new MyObserver<List<Item>> (this, itemlistener),
+                        url);
+//---------------------------------------------------------------------------
                 break;
             }
             case R.id.action_delete: {
@@ -518,7 +562,9 @@ public class AddItem extends AppCompatActivity {
                 break;
             }
         }
-        return super.onOptionsItemSelected(item);
+        //return super.onOptionsItemSelected(item);
+        return true;
+        //return true;
     }
 
 
