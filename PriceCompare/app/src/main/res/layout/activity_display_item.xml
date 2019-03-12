@@ -67,7 +67,7 @@
                 android:textSize="14sp" />
 
             <EditText
-                android:id="@+id/editText3"
+                android:id="@+id/DisplayProductName"
                 android:layout_width="299dp"
                 android:layout_height="wrap_content"
                 android:ems="10"

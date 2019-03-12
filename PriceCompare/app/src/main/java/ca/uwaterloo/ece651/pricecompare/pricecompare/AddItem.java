@@ -54,6 +54,7 @@ import java.util.List;
 import ca.uwaterloo.ece651.pricecompare.DataReq.*;
 import ca.uwaterloo.ece651.pricecompare.DataReq.Model.*;
 import ca.uwaterloo.ece651.pricecompare.DataReq.http.ApiMethods;
+import io.reactivex.internal.operators.observable.ObservableError;
 
 
 class RetrieveURLContent extends AsyncTask<String, Void, String> {
@@ -96,6 +97,7 @@ class RetrieveURLContent extends AsyncTask<String, Void, String> {
     }
 }
 
+
 public class AddItem extends AppCompatActivity {
     // Member variables
     public static final int REQUEST_CAMERA = 1;
@@ -109,9 +111,12 @@ public class AddItem extends AppCompatActivity {
     private int categorySelected = 0;
     private Button storeSelectButton;
     private String storeSelected;
+    private Boolean categorySelectedBoolean = false;
     private EditText textUPC;
     private EditText textName;
     private EditText textPrice;
+    private int newStoreFlag = 0;
+    private int productNameChangeFlag = 0;
     PopupWindow popupPhotoWindow;
     PopupWindow popupCategorySelectWindow;
     PopupWindow popupStoreSelectWindow;
@@ -234,34 +239,41 @@ public class AddItem extends AppCompatActivity {
             //categorySelected = "Entertainment";
             categorySelected = 0;  //0: entertainment
             popupCategorySelectWindow.dismiss();
+            categorySelectedBoolean = true;
         });
         btFood.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_food));
             categorySelected = 1; //1: Food
             popupCategorySelectWindow.dismiss();
+            categorySelectedBoolean = true;
         });
         btDrink.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_drink));
             categorySelected = 2; //drink;
             popupCategorySelectWindow.dismiss();
+            categorySelectedBoolean = true;
         });
         btHome.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_home));
             categorySelected = 3; //getResources().getString(R.string.cat_home);
             popupCategorySelectWindow.dismiss();
+            categorySelectedBoolean = true;
         });
         btWellness.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_wellness));
             categorySelected = 4;// getResources().getString(R.string.cat_wellness);
             popupCategorySelectWindow.dismiss();
+            categorySelectedBoolean = true;
         });
         btOffice.setOnClickListener(v -> {
             categorySelectButton.setText(getResources().getString(R.string.cat_office));
             categorySelected = 5;//getResources().getString(R.string.cat_office);
             popupCategorySelectWindow.dismiss();
+            categorySelectedBoolean = true;
         });
         btCancel.setOnClickListener(v -> {
             popupCategorySelectWindow.dismiss();
+            categorySelectedBoolean = true;
         });
 
         popupCategorySelectWindow = new PopupWindow(popupCategoryView,
@@ -451,15 +463,6 @@ public class AddItem extends AppCompatActivity {
         textUPC = (EditText) findViewById(R.id.edt_add_UPC);
         textUPC.setText(upc_string);
 
-        // Set produce name textEdit
-        textName = (EditText) findViewById(R.id.edt_add_name);
-        try {
-            String name = new RetrieveURLContent().execute(ITEM_REQUEST_URL + upc_string).get();
-
-            textName.setText(name);
-        } catch (Exception e) {
-            Log.v("ASYNC_ERROR", e.toString());
-        }
 
         // Keep the dollar sign of the price textEdit - Han
         textPrice = (EditText) findViewById(R.id.editText_price);
@@ -497,15 +500,41 @@ public class AddItem extends AppCompatActivity {
         categorySelectButton.setOnClickListener(v -> selectCategory());
         // Store selection
         storeSelectButton = (Button) findViewById(R.id.button_select_store);
-        //if (activity.equals("scanner")) {
+        storeSelectButton.setOnClickListener(v -> selectStore());
+
+        textName = (EditText) findViewById(R.id.edt_add_name);
+
+        //the activity is from display
+        if (activity.equals("display")) {
+            // get product information from database and display
+            // Set produce name
+            ObserverOnNextListener<List<Product>> ProductListener = products -> {
+                EditText textName = findViewById(R.id.edt_add_name);
+                textName.setText(products.get(0).getName());
+                categorySelectButton.setText(products.get(0).getCategory());
+            };
+            ApiMethods.getProduct(new MyObserver<>(this, ProductListener), upc_string);
+            storeSelected = store_string;
+            storeSelectButton.setText(store_string);
+            categorySelectedBoolean = true;
+            productNameChangeFlag = 1;
+
+        }
+        //the activity is from scanner
+        else {
+            // Set the nearest store
             getNearestStore();
             storeSelectButton.setText(nearestStore);
             storeSelected = nearestStore;
-        //}
-        //else if (activity.equals("display")) {
-        //    storeSelectButton.setText(store_string);
-        //}
-        storeSelectButton.setOnClickListener(v -> selectStore());
+            // get product name from the website and set
+            try {
+                String name = new RetrieveURLContent().execute(ITEM_REQUEST_URL + upc_string).get();
+                textName.setText(name);
+            } catch (Exception e) {
+                Log.v("ASYNC_ERROR", e.toString());
+            }
+        }
+
     }
 
     @Override
@@ -528,32 +557,40 @@ public class AddItem extends AppCompatActivity {
             case R.id.action_done: {
                 //this.finish();
                 //When all the inputs are done, click '√'
-                String testUri = "Iknownothing";
-                String testUPC = "5770022296";
-                String testUPC2 = "12345678910";
-                String testUPCx = "1";
-                String testName = "water";
-                int testCategory = 2;
+
 //---------------------request and data received----------------------------
 
                 storeSelected.replaceAll("\\s", "%20");
-                String strPrice = textPrice.getText().toString().substring(1);
-                String url = String.format("/Item/Insert?item=%d?=%d?=%s?=%s?=%d?=%s?=%f",
-                        0,0,textUPC.getText().toString(), textName.getText().toString(), categorySelected, storeSelected, Float.parseFloat(strPrice));
-                Log.d("url:", url);
-                Log.d("price:", strPrice);
-                ObserverOnNextListener<List<Item>> itemlistener = new ObserverOnNextListener<List<Item>>() {
-                    @Override
-                    public void onNext(List<Item> items) {
+                String UPC = textUPC.getText().toString();
+                String productName = textName.getText().toString();
+                String price = textPrice.getText().toString().substring(1);
+
+
+                //"/Item/Insert?item={newstoreflag}?={productnamechangeflag}?={UPC}?={productname}?={category}?={storename}?={price}
+                if (categorySelectedBoolean && !UPC.equals("") && !productName.equals("") && !price.equals("")) {
+                    ObserverOnNextListener<List<Item>> itemListener = items -> {
                         //Do data manipulation here
                         //TODO: context, the parameter for Toast.makeText()?
+                        Toast addItemToast = Toast.makeText(this, "AddItem: " + items.get(0).getMsg(),
+                                Toast.LENGTH_SHORT);
+                        addItemToast.show();
                         //Toast.makeText(getBaseContext(), "AddI" + products.get(0).getMsg(), Toast.LENGTH_LONG);
-                        Log.d("stock","" + items.get(0).getMsg());
-                    }
-                };
+                        Log.d("item", "" + items.get(0).getMsg());
+                    };
 
-                ApiMethods.createItem(new MyObserver<List<Item>> (this, itemlistener),
-                        url);
+                    String url = String.format("/Item/Insert?item=%d?=%d?=%s?=%s?=%d?=%s?=%f",
+                            newStoreFlag, productNameChangeFlag, UPC, productName, categorySelected, storeSelected, Float.parseFloat(price));
+                    ApiMethods.createItem(new MyObserver<>(this, itemListener),
+                            url);
+                    Intent intent = new Intent(this, MainActivity.class);
+                    startActivity(intent);
+                } else {
+                    Toast fillInToast = Toast.makeText(this, "Please fill in the form completely",
+                            Toast.LENGTH_SHORT);
+                    fillInToast.show();
+                }
+
+
 //---------------------------------------------------------------------------
                 break;
             }

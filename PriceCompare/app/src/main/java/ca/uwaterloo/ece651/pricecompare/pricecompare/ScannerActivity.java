@@ -2,6 +2,7 @@ package ca.uwaterloo.ece651.pricecompare.pricecompare;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ExpandableListActivity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -9,17 +10,30 @@ import android.util.Log;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.widget.Toast;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Item;
+import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Product;
+import ca.uwaterloo.ece651.pricecompare.DataReq.MyObserver;
+import ca.uwaterloo.ece651.pricecompare.DataReq.ObserverOnNextListener;
+import ca.uwaterloo.ece651.pricecompare.DataReq.ProductExistException;
+import ca.uwaterloo.ece651.pricecompare.DataReq.http.ApiMethods;
 import me.dm7.barcodescanner.zbar.Result;
 import me.dm7.barcodescanner.zbar.ZBarScannerView;
 
 public class ScannerActivity extends Activity implements ZBarScannerView.ResultHandler {
 
     private ZBarScannerView mScannerView;
+    boolean productExists;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        productExists = false;
         mScannerView = new ZBarScannerView(this);    // Programmatically initialize the scanner view
         setContentView(mScannerView);
 
@@ -44,24 +58,28 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
 
     @Override
     public void handleResult(Result result) {
-//        //The item does not exist in the database, go to AddItem class
-          Log.d("test result", result.getContents().toString());
 
-//        Intent intent = new Intent(this, AddItem.class);
-//        String message = result.getContents();
-//        intent.putExtra("upc", message);
-//        intent.putExtra("activity","scanner");
-//        startActivity(intent);
+        String UPC = result.getContents();
+        Log.d("test result", UPC);
 
-        // The item is in the database, go to DisplayItem class
-        Intent intent = new Intent(this, DisplayItem.class);
-        String message = result.getContents();
-        intent.putExtra("upc", message);
-        intent.putExtra("activity","scanner");
-        startActivity(intent);
+        ObserverOnNextListener<List<Product>> ProductListener = products -> {
+            //product doesn't exists in the database
+            if (products.get(0).getMsg() != null) {
+                Log.d("item", "" + products.get(0).getMsg());
+                Intent intent = new Intent(this, AddItem.class);
+                intent.putExtra("upc", UPC);
+                intent.putExtra("activity", "scanner");
+                startActivity(intent);
+            }
+            //exists
+            else {
+                Intent intent = new Intent(this, DisplayItem.class);
+                intent.putExtra("upc", UPC);
+                intent.putExtra("activity", "scanner");
+                startActivity(intent);
+            }
+        };
+        ApiMethods.getProduct(new MyObserver<>(this, ProductListener), UPC);
 
-
-//        // If you would like to resume scanning, call this method below:
-//        mScannerView.resumeCameraPreview(this);
     }
 }

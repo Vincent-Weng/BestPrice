@@ -12,15 +12,15 @@ public class Product{
 
     @SerializedName("name")
     @Expose
-    private String name;
+    private String name = null;
 
     @SerializedName("category")
     @Expose
-    private String category;
+    private String category = null;
 
     @SerializedName("picture")
     @Expose
-    private String picture;
+    private String picture = null;
 
     @SerializedName("msg")
     @Expose

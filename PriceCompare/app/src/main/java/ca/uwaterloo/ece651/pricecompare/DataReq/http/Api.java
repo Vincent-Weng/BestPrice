@@ -7,7 +7,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Api {
-    public static String baseUrl = "http://ece651.us-east-2.elasticbeanstalk.com/";
+    public static String baseUrl = "http://ece651back.us-east-2.elasticbeanstalk.com/";
     public static ApiService apiService;
     //singleton
     public static ApiService getApiService() {
