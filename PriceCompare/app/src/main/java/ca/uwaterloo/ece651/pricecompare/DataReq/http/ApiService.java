@@ -146,27 +146,16 @@ public interface ApiService {
     Observable<List<Item>> createItem(@Url String url);
 
 
+    //--------------------Recommendation by category---------------
+    @GET("/Display/querycategory/")
+    Observable<List<RecommendationCategory>> getRecommendationByCategory(@Query("category") int category);
 
+    //--------------------Recommendation by category---------------
+    @GET("/Display/querystore/")
+    Observable<List<RecommendationStore>> getRecommendationByStore(@Query("storename") String storename);
 
-
-//    @GET("/Item/Insert?item={newstoreflag}?={productnamechangeflag}?={UPC}?={productname}?={category}?={storename}?={price}")
-//    Observable<List<Item>> createItem(
-//                                        @Path(value = "newstoreflag", encoded = true) int flag,
-//                                        @Query(value ="productnamechangeflag", encoded = true) int productnamechangeflag,
-//                                        @Query(value ="UPC", encoded = true) String upc,
-//                                      @Query(value ="productname", encoded = true) String name,
-//                                      @Query(value ="category", encoded = true) int category,
-//                                      @Query(value ="storename", encoded = true) String storename,
-//                                        @Query(value ="price", encoded = true) double price);
-
-//    @GET("/Item/Insert?item={newstoreflag}?={productnamechangeflag}?={UPC}?={productname}?={category}?={storename}?={price}")
-//    Observable<List<Item>> createItem(
-//            @Path("newstoreflag") int flag,
-//            @Path("productnamechangeflag") int productnamechangeflag,
-//            @Query("UPC") String upc,
-//            @Query("productname") String name,
-//            @Query("category") int category,
-//            @Query("storename") String storename,
-//            @Query("price") double price);
+    //--------------------Recommendation by category---------------
+    @GET("/Display/bestprice/")
+    Observable<List<BestPrice>> getBestPrice(@Query("UPC") String UPC);
 
 }
