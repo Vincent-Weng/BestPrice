@@ -96,4 +96,23 @@ public class ApiMethods {
                                 String url){
         ApiSubscribe(Api.getApiService().createItem(url), observer);
     }
+
+
+    //----------------Recommendation by category-----------------
+    public static void getRecommendationByCategory(Observer<List<RecommendationCategory>> observer,
+                                       int category){
+        ApiSubscribe(Api.getApiService().getRecommendationByCategory(category), observer);
+    }
+
+    //-----------------Recommendation by store--------------------------------------------
+    public static void getRecommendationByStore(Observer<List<RecommendationStore>> observer,
+                                    String storename){
+        ApiSubscribe(Api.getApiService().getRecommendationByStore(storename), observer);
+    }
+
+    //-----------------Get the best price--------------------------------------------------
+    public static void getBestPrice(Observer<List<BestPrice>> observer,
+                                       String UPC){
+        ApiSubscribe(Api.getApiService().getBestPrice(UPC), observer);
+    }
 }
