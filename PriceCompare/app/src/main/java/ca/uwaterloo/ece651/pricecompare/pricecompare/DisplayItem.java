@@ -54,7 +54,7 @@ public class DisplayItem extends AppCompatActivity {
                 img = getResources().getDrawable(R.drawable.sobeys_inv);
             else if (store.toLowerCase().contains("food basics"))
                 img = getResources().getDrawable(R.drawable.foodbasics_inv);
-            else if (store.toLowerCase().contains("t&t"))
+            else if (store.toLowerCase().contains("tnt"))
                 img = getResources().getDrawable(R.drawable.tnt_inv);
             else if (store.toLowerCase().contains("walmart"))
                 img = getResources().getDrawable(R.drawable.walmart_inv);
