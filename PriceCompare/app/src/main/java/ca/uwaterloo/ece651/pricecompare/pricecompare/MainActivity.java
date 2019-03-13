@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import android.widget.Button;
 
+import io.reactivex.disposables.Disposable;
+
 public class MainActivity extends AppCompatActivity {
     private List<Store> storeList = new ArrayList<>();
     @Override
