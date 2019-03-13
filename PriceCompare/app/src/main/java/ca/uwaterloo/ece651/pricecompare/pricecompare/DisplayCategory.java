@@ -25,7 +25,6 @@ public class DisplayCategory extends AppCompatActivity {
         ArrayList<HashMap<String, Object>> users = new ArrayList<HashMap<String, Object>>();
         for (int i = 0; i < 40; i++) {
             HashMap<String, Object> user = new HashMap<String, Object>();
-            user.put("img", R.drawable.user);
             user.put("product", "product(" + i+")");
             user.put("price", (20 + i) + "");
             user.put("store","store("+i+")");
@@ -34,9 +33,9 @@ public class DisplayCategory extends AppCompatActivity {
         SimpleAdapter saImageItems = new SimpleAdapter(this,
                 users,// 数据来源
                 R.layout.user,//每一个user xml 相当ListView的一个组件
-                new String[] { "img", "product", "price","store" },
+                new String[] {  "product", "price","store" },
                 // 分别对应view 的id
-                new int[] { R.id.img, R.id.product, R.id.price, R.id.store });
+                new int[] {  R.id.product, R.id.price, R.id.store });
         // 获取listview
         ((ListView) findViewById(R.id.users)).setAdapter(saImageItems);
     }

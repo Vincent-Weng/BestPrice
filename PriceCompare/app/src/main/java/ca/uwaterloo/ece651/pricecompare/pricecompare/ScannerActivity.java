@@ -59,7 +59,7 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
     @Override
     public void handleResult(Result result) {
 
-        String UPC = result.getContents();
+        String UPC = result.getContents().replaceAll("^0+","");
         Log.d("test result", UPC);
 
         ObserverOnNextListener<List<Product>> ProductListener = products -> {
