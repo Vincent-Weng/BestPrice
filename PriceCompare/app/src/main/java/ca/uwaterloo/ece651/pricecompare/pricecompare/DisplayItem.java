@@ -137,8 +137,7 @@ public class DisplayItem extends AppCompatActivity {
 
         //get upc code from scanner and set it to edit_text
         Intent intent = getIntent();
-        //String UPC = intent.getStringExtra("upc");
-        String UPC = "55742356274";
+        String UPC = intent.getStringExtra("upc");
 
         // get product information from database and display
         ObserverOnNextListener<List<Product>> ProductListener = products -> {
