@@ -148,15 +148,17 @@ public class DisplayItem extends AppCompatActivity {
         ApiMethods.getProduct(new MyObserver<>(this, ProductListener), UPC);
 
         //get stock information from database and display
-        ObserverOnNextListener<List<BestPrice>> itemListener = items -> {
-            //Do data manipulation here
-            Toast addItemToast = Toast.makeText(this, "BP: " + items.get(0).getStorename(),
-                    Toast.LENGTH_SHORT);
-            addItemToast.show();
+        ObserverOnNextListener<List<BestPrice>> bestPriceListener = bestPrices -> {
+
             //Toast.makeText(getBaseContext(), "AddI" + products.get(0).getMsg(), Toast.LENGTH_LONG);
-            Log.d("BP", "" + items.get(0).getStorename());
+            Log.d("BP", "" + bestPrices.get(0).getStorename());
+            //DisplayBestprice
+            EditText textBestPrice = findViewById(R.id.DisplayBestprice);
+            textBestPrice.setText(String.valueOf(bestPrices.get(0).getPrice()));
+            EditText textStore = findViewById(R.id.DisplayRecStore);
+            textStore.setText(bestPrices.get(0).getStorename());
         };
-        ApiMethods.getBestPrice(new MyObserver<>(this, itemListener), UPC);
+        ApiMethods.getBestPrice(new MyObserver<>(this, bestPriceListener), UPC);
         EditText textUPC = findViewById(R.id.edt_dis_upc);
         textUPC.setText(UPC);
 
