@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -25,6 +26,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import ca.uwaterloo.ece651.pricecompare.DataReq.Model.BestPrice;
+import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Item;
 import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Product;
 import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Stock;
 import ca.uwaterloo.ece651.pricecompare.DataReq.MyObserver;
@@ -134,8 +137,8 @@ public class DisplayItem extends AppCompatActivity {
 
         //get upc code from scanner and set it to edit_text
         Intent intent = getIntent();
-        String UPC = intent.getStringExtra("upc");
-
+        //String UPC = intent.getStringExtra("upc");
+        String UPC = "55742356274";
 
         // get product information from database and display
         ObserverOnNextListener<List<Product>> ProductListener = products -> {
@@ -145,8 +148,15 @@ public class DisplayItem extends AppCompatActivity {
         ApiMethods.getProduct(new MyObserver<>(this, ProductListener), UPC);
 
         //get stock information from database and display
-
-
+        ObserverOnNextListener<List<BestPrice>> itemListener = items -> {
+            //Do data manipulation here
+            Toast addItemToast = Toast.makeText(this, "BP: " + items.get(0).getStorename(),
+                    Toast.LENGTH_SHORT);
+            addItemToast.show();
+            //Toast.makeText(getBaseContext(), "AddI" + products.get(0).getMsg(), Toast.LENGTH_LONG);
+            Log.d("BP", "" + items.get(0).getStorename());
+        };
+        ApiMethods.getBestPrice(new MyObserver<>(this, itemListener), UPC);
         EditText textUPC = findViewById(R.id.edt_dis_upc);
         textUPC.setText(UPC);
 

@@ -147,15 +147,15 @@ public interface ApiService {
 
 
     //--------------------Recommendation by category---------------
-    @GET("/Display/querycategory/")
-    Observable<List<RecommendationCategory>> getRecommendationByCategory(@Query("category") int category);
+    @GET("/Display/querycategory/{category}")
+    Observable<List<RecommendationCategory>> getRecommendationByCategory(@Path("category") int category);
 
     //--------------------Recommendation by category---------------
-    @GET("/Display/querystore/")
-    Observable<List<RecommendationStore>> getRecommendationByStore(@Query("storename") String storename);
+    @GET("/Display/querystore/{storename}")
+    Observable<List<RecommendationStore>> getRecommendationByStore(@Path("storename") String storename);
 
     //--------------------Recommendation by category---------------
-    @GET("/Display/bestprice/")
-    Observable<List<BestPrice>> getBestPrice(@Query("UPC") String UPC);
+    @GET("/Display/bestprice/{UPC}")
+    Observable<List<BestPrice>> getBestPrice(@Path("UPC") String UPC);
 
 }
