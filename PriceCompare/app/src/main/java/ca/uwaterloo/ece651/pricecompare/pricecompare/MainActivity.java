@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
             storeList.add(sobeys1);
             Store zehrs1 = new Store("Zehrs Conestoga",R.drawable.zehrs);
             storeList.add(zehrs1);
-            Store tnt = new Store("T&T Waterloo",R.drawable.tnt);
+            Store tnt = new Store("TNT Waterloo",R.drawable.tnt);
             storeList.add(tnt);
             Store wcentral = new Store("Waterloo Central", R.drawable.wcentral);
             storeList.add(wcentral);
@@ -199,7 +199,13 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(View v){
                   int position = holder.getAdapterPosition();
                   Store store = mStoreList.get(position);
-                  Toast.makeText(v.getContext(),"you clicked view"+store.getName(), Toast.LENGTH_SHORT).show();
+
+                  Intent intent = new Intent(MainActivity.this,DisplayStore.class);
+                  Bundle bundle = new Bundle();
+                  bundle.putString("Store", store.getName());
+                  intent.putExtras(bundle);
+                  startActivity(intent);
+                  //Toast.makeText(v.getContext(),"you clicked view"+store.getName(), Toast.LENGTH_SHORT).show();
               }
             }
             );
@@ -209,13 +215,13 @@ public class MainActivity extends AppCompatActivity {
                         int position = holder.getAdapterPosition();
                         Store store = mStoreList.get(position);
 
-                        Intent int4 = new Intent(MainActivity.this,DisplayCategory.class);
+                        Intent intent = new Intent(MainActivity.this,DisplayStore.class);
                         Bundle bundle = new Bundle();
-                        bundle.putString("Category","Food");
-                        int4.putExtras(bundle);
-                        startActivity(int4);
+                        bundle.putString("Store", store.getName());
+                        intent.putExtras(bundle);
+                        startActivity(intent);
 
-                        Toast.makeText(v.getContext(),"you clicked image"+ store.getName(),Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(v.getContext(),"you clicked image"+ store.getName(),Toast.LENGTH_SHORT).show();
                     }
 
             });

@@ -35,7 +35,7 @@ public class DisplayCategory extends AppCompatActivity {
                 R.layout.user,//每一个user xml 相当ListView的一个组件
                 new String[] {  "product", "price","store" },
                 // 分别对应view 的id
-                new int[] {  R.id.product, R.id.price, R.id.store });
+                new int[] {  R.id.product, R.id.price, R.id.category });
         // 获取listview
         ((ListView) findViewById(R.id.users)).setAdapter(saImageItems);
     }

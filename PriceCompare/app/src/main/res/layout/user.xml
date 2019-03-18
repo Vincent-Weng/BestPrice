@@ -22,7 +22,7 @@
             android:textSize="18sp"></TextView>
 
         <TextView
-            android:id="@+id/store"
+            android:id="@+id/category"
             android:layout_width="137dp"
             android:layout_height="match_parent"
             android:textSize="18sp"></TextView>
