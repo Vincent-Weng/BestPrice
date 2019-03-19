@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent int1 = new Intent(MainActivity.this, DisplayCategory.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("Category","Wellness");
+                bundle.putInt("Category",4);
                 int1.putExtras(bundle);
                 startActivity(int1);
             }
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent int2 = new Intent (MainActivity.this, DisplayCategory.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("Category","Office");
+                bundle.putInt("Category",5);
                 int2.putExtras(bundle);
                 startActivity(int2);
             }
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent int3 = new Intent(MainActivity.this,DisplayCategory.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("Category","Entertainment");
+                bundle.putInt("Category",0);
                 int3.putExtras(bundle);
                 startActivity(int3);
             }
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent int4 = new Intent(MainActivity.this,DisplayCategory.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("Category","Food");
+                bundle.putInt("Category",1);
                 int4.putExtras(bundle);
                 startActivity(int4);
             }
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent int5 = new Intent(MainActivity.this,DisplayCategory.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("Category","Drink");
+                bundle.putInt("Category",2);
                 int5.putExtras(bundle);
                 startActivity(int5);
             }
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent int6 = new Intent(MainActivity.this,DisplayCategory.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("Category","Home");
+                bundle.putInt("Category",3);
                 int6.putExtras(bundle);
                 startActivity(int6);
             }
