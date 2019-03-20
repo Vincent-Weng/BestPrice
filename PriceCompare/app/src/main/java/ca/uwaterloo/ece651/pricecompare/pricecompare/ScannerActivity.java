@@ -99,6 +99,9 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
             turnToDisOrAdd(UPC_input);
         });
 
+        Button dismiss = (Button)popupConfirmBarcodeView.findViewById(R.id.DismissConfirmBarcode);
+        dismiss.setOnClickListener(v->{this.finish();});
+
 
         popupBarcodeConfirmWindow = new PopupWindow(popupConfirmBarcodeView,
                 WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
