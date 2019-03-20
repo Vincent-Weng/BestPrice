@@ -39,13 +39,13 @@ public class DisplayStore extends AppCompatActivity {
         ArrayList<HashMap<String, Object>> users = new ArrayList<HashMap<String, Object>>();
         ObserverOnNextListener<List<RecommendationStore>> RecommandationStore = recommendationStores -> {
 
-            //for (int i = 0; i < 40; i++) {
+            for (int i = 0; i < 3; i++) {
                 HashMap<String, Object> user = new HashMap<String, Object>();
-                user.put("product", String.valueOf(recommendationStores.get(1).getName()));
-                user.put("price", String.valueOf(recommendationStores.get(1).getPrice()));
-                user.put("category",String.valueOf(recommendationStores.get(1).getCategory()));
+                user.put("product", String.valueOf(recommendationStores.get(i).getName()));
+                user.put("price", String.valueOf(recommendationStores.get(i).getPrice()));
+                user.put("category",String.valueOf(recommendationStores.get(i).getCategory()));
                 users.add(user);
-            //}
+            }
             SimpleAdapter saImageItems = new SimpleAdapter(this,
                     users,// 数据来源
                     R.layout.user,//每一个user xml 相当ListView的一个组件
