@@ -140,35 +140,33 @@ public class DisplayItem extends AppCompatActivity {
         //get upc code from scanner and set it to edit_text
         Intent intent = getIntent();
         String UPC = intent.getStringExtra("upc");
-
+        image = (ImageView) findViewById(R.id.imageView);
+        String category =intent.getStringExtra("category");
+        switch (category) {
+            case "Food":
+                image.setImageResource(R.drawable.food);
+                break;
+            case "Entertainment":
+                image.setImageResource(R.drawable.entertainment);
+                break;
+            case "Home":
+                image.setImageResource(R.drawable.home);
+                break;
+            case "Office":
+                image.setImageResource(R.drawable.office);
+                break;
+            case "Drink":
+                image.setImageResource(R.drawable.drink);
+                break;
+            case "Wellness":
+                image.setImageResource(R.drawable.wellness);
+                break;
+        }
 
         // get product information from database and display
         ObserverOnNextListener<List<Product>> ProductListener = products -> {
-            image = (ImageView) findViewById(R.id.imageView);
             EditText textName = findViewById(R.id.DisplayProductName);
             textName.setText(products.get(0).getName());
-            String category = null;
-            category = products.get(0).getCategory();
-            switch (category) {
-                case "Food":
-                    image.setImageResource(R.drawable.food);
-                    break;
-                case "Entertainment":
-                    image.setImageResource(R.drawable.entertainment);
-                    break;
-                case "Home":
-                    image.setImageResource(R.drawable.home);
-                    break;
-                case "Office":
-                    image.setImageResource(R.drawable.office);
-                    break;
-                case "Drink":
-                    image.setImageResource(R.drawable.drink);
-                    break;
-                case "Wellness":
-                    image.setImageResource(R.drawable.wellness);
-                    break;
-            }
         };
         ApiMethods.getProduct(new MyObserver<>(this, ProductListener), UPC);
 

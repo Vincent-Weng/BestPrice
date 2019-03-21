@@ -74,6 +74,7 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
                 Intent intent = new Intent(this, DisplayItem.class);
                 intent.putExtra("upc", UPC);
                 intent.putExtra("activity", "scanner");
+                intent.putExtra("category",products.get(0).getCategory());
                 startActivity(intent);
             }
         };
