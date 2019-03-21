@@ -493,6 +493,7 @@ public class AddItem extends AppCompatActivity {
         });
 
         image = (ImageView) findViewById(R.id.add_image);
+        image.setImageResource(R.drawable.ic_launcher);
         image.setOnClickListener(v -> addimage());
 
         // Category selection

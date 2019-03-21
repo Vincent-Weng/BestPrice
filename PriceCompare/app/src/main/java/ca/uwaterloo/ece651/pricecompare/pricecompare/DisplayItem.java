@@ -3,8 +3,8 @@ package ca.uwaterloo.ece651.pricecompare.pricecompare;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -13,11 +13,11 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TableLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -25,9 +25,9 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import ca.uwaterloo.ece651.pricecompare.DataReq.Model.BestPrice;
-import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Item;
 import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Product;
 import ca.uwaterloo.ece651.pricecompare.DataReq.Model.Stock;
 import ca.uwaterloo.ece651.pricecompare.DataReq.MyObserver;
@@ -38,6 +38,7 @@ public class DisplayItem extends AppCompatActivity {
     private Button displayStoreButton;
     private HashMap<String, List<Double>> stores = new HashMap<>();
     PopupWindow popupStoreSelectWindow;
+    private ImageView image;
 
     public void displayStore(String upc) {
 
@@ -103,7 +104,7 @@ public class DisplayItem extends AppCompatActivity {
                 }
             };
             table.addView(newTextPrice);
-            ApiMethods.getStock(new MyObserver<>(this, StockListener), upc,store);
+            ApiMethods.getStock(new MyObserver<>(this, StockListener), upc, store);
 
         }
 
@@ -135,16 +136,42 @@ public class DisplayItem extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_item);
 
+
         //get upc code from scanner and set it to edit_text
         Intent intent = getIntent();
         String UPC = intent.getStringExtra("upc");
 
+
         // get product information from database and display
         ObserverOnNextListener<List<Product>> ProductListener = products -> {
+            image = (ImageView) findViewById(R.id.imageView);
             EditText textName = findViewById(R.id.DisplayProductName);
             textName.setText(products.get(0).getName());
+            String category = null;
+            category = products.get(0).getCategory();
+            switch (category) {
+                case "Food":
+                    image.setImageResource(R.drawable.food);
+                    break;
+                case "Entertainment":
+                    image.setImageResource(R.drawable.entertainment);
+                    break;
+                case "Home":
+                    image.setImageResource(R.drawable.home);
+                    break;
+                case "Office":
+                    image.setImageResource(R.drawable.office);
+                    break;
+                case "Drink":
+                    image.setImageResource(R.drawable.drink);
+                    break;
+                case "Wellness":
+                    image.setImageResource(R.drawable.wellness);
+                    break;
+            }
         };
         ApiMethods.getProduct(new MyObserver<>(this, ProductListener), UPC);
+
 
         //get stock information from database and display
         ObserverOnNextListener<List<BestPrice>> bestPriceListener = bestPrices -> {

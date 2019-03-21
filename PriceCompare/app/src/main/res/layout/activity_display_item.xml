@@ -8,7 +8,7 @@
 
     <LinearLayout
         android:id="@+id/linearLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
         android:layout_marginTop="16dp"
@@ -19,7 +19,9 @@
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="190dp"
+            android:layout_gravity="center_horizontal|center"
             android:contentDescription="@string/todo"
+            android:src="@mipmap/ic_launcher_round"
             tools:srcCompat="@tools:sample/backgrounds/scenic[4]" />
     </LinearLayout>
 
