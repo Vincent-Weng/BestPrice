@@ -17,7 +17,7 @@ public interface StoreMapper {
 
     @Update("UPDATE Store SET storename = #{storename}, address = #{address}, latitude = #{latitude}, longitude = #{longitude}"+
             ",city = #{city}, province = #{province}, postcode = #{postcode}"+
-            " where storeID = #{storeID}")
+            " where storename = #{storename}")
     int updateStore(Store s) throws DataAccessException;
 
     @Delete("DELETE from Store where storename = #{storename}")
