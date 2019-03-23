@@ -68,60 +68,45 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button button3 = findViewById(R.id.cat_button_0);
-        button3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent int3 = new Intent(MainActivity.this,DisplayCategory.class);
-                Bundle bundle = new Bundle();
-                bundle.putInt("Category",0);
-                int3.putExtras(bundle);
-                startActivity(int3);
-            }
+        button3.setOnClickListener(v -> {
+            Intent int3 = new Intent(MainActivity.this,DisplayCategory.class);
+            Bundle bundle = new Bundle();
+            bundle.putInt("Category",0);
+            int3.putExtras(bundle);
+            startActivity(int3);
         });
 
         Button button4 = findViewById(R.id.cat_button_1);
-        button4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent int4 = new Intent(MainActivity.this,DisplayCategory.class);
-                Bundle bundle = new Bundle();
-                bundle.putInt("Category",1);
-                int4.putExtras(bundle);
-                startActivity(int4);
-            }
+        button4.setOnClickListener(v -> {
+            Intent int4 = new Intent(MainActivity.this,DisplayCategory.class);
+            Bundle bundle = new Bundle();
+            bundle.putInt("Category",1);
+            int4.putExtras(bundle);
+            startActivity(int4);
         });
 
         Button button5 = findViewById(R.id.cat_button_2);
-        button5.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent int5 = new Intent(MainActivity.this,DisplayCategory.class);
-                Bundle bundle = new Bundle();
-                bundle.putInt("Category",2);
-                int5.putExtras(bundle);
-                startActivity(int5);
-            }
+        button5.setOnClickListener(v -> {
+            Intent int5 = new Intent(MainActivity.this,DisplayCategory.class);
+            Bundle bundle = new Bundle();
+            bundle.putInt("Category",2);
+            int5.putExtras(bundle);
+            startActivity(int5);
         });
 
         Button button6 = findViewById(R.id.cat_button_3);
-        button6.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent int6 = new Intent(MainActivity.this,DisplayCategory.class);
-                Bundle bundle = new Bundle();
-                bundle.putInt("Category",3);
-                int6.putExtras(bundle);
-                startActivity(int6);
-            }
+        button6.setOnClickListener(v -> {
+            Intent int6 = new Intent(MainActivity.this,DisplayCategory.class);
+            Bundle bundle = new Bundle();
+            bundle.putInt("Category",3);
+            int6.putExtras(bundle);
+            startActivity(int6);
         });
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_button);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, ScannerActivity.class);
-                startActivity(intent);
-            }
+        fab.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, ScannerActivity.class);
+            startActivity(intent);
         });
 
 
@@ -147,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
             storeList.add(zehrs2);
         }
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -239,7 +225,6 @@ public class MainActivity extends AppCompatActivity {
             return  mStoreList.size();
     }
     }
-
 
 
     public class Store{
