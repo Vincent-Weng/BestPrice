@@ -23,7 +23,7 @@
             android:id="@+id/add_image"
             android:layout_width="match_parent"
             android:layout_height="190dp"
-            android:src="@mipmap/k2czarne" />
+            android:src="@drawable/ic_launcher" />
     </LinearLayout>
 
     <TableLayout

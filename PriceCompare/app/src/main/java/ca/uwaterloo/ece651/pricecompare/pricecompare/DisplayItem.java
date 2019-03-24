@@ -140,6 +140,9 @@ public class DisplayItem extends AppCompatActivity {
         //get upc code from scanner and set it to edit_text
         Intent intent = getIntent();
         String UPC = intent.getStringExtra("upc");
+        EditText textUPC = findViewById(R.id.edt_dis_upc);
+        textUPC.setText(UPC);
+
         image = (ImageView) findViewById(R.id.imageView);
         String category =intent.getStringExtra("category");
         switch (category) {
@@ -183,8 +186,7 @@ public class DisplayItem extends AppCompatActivity {
             textStore.setText(bestPrices.get(0).getStorename());
         };
         ApiMethods.getBestPrice(new MyObserver<>(this, bestPriceListener), UPC);
-        EditText textUPC = findViewById(R.id.edt_dis_upc);
-        textUPC.setText(UPC);
+
 
         // Add stores. Will be replaced with database visit in the future.
         InputStream inputStream = getResources().openRawResource(R.raw.stores);
