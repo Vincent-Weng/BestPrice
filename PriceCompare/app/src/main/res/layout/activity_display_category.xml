@@ -19,20 +19,22 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:layout_width="179dp"
+            android:layout_width="0dp"
+            android:layout_weight=".33"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
             android:fontFamily="sans-serif"
             android:gravity="center"
             android:lineSpacingExtra="12sp"
-            android:text="    Product"
+            android:text="Product"
             android:textAlignment="center"
             android:textColor="@color/colorAppBackground"
             android:textSize="18sp"
             android:textStyle="bold"></TextView>
 
         <TextView
-            android:layout_width="85dp"
+            android:layout_width="0dp"
+            android:layout_weight=".33"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
             android:gravity="center"
@@ -43,11 +45,12 @@
             android:textStyle="bold"></TextView>
 
         <TextView
-            android:layout_width="145dp"
+            android:layout_width="0dp"
+            android:layout_weight=".33"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
             android:gravity="center"
-            android:text="Store"
+            android:text="Category"
             android:textColor="@color/colorAppBackground"
             android:textSize="18sp"
             android:textStyle="bold"></TextView>
