@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
             android:gravity="center"
-            android:text="Category"
+            android:text="Store"
             android:textColor="@color/colorAppBackground"
             android:textSize="18sp"
             android:textStyle="bold"></TextView>
