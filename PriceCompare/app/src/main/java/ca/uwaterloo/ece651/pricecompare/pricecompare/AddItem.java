@@ -525,6 +525,7 @@ public class AddItem extends AppCompatActivity {
         else {
             // Set the nearest store
             getNearestStore();
+            nearestStore = "Waterloo Central";
             storeSelectButton.setText(nearestStore);
             storeSelected = nearestStore;
             // get product name from the website and set
