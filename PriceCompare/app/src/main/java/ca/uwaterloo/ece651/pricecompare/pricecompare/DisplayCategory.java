@@ -35,7 +35,7 @@ public class DisplayCategory extends AppCompatActivity {
         ArrayList<HashMap<String, Object>> users = new ArrayList<HashMap<String, Object>>();
         ObserverOnNextListener<List<RecommendationCategory>> RecommandationCategory = recommendationCategories -> {
 
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 10; i++) {
                 HashMap<String, Object> user = new HashMap<String, Object>();
                 user.put("product", String.valueOf(recommendationCategories.get(i).getName()));
                 user.put("price", String.valueOf(recommendationCategories.get(i).getPrice()));
