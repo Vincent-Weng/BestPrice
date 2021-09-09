@@ -6,34 +6,35 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
 public class MyObserver<T> implements Observer<T> {
-    private static final String TAG = "MyObserver";
-    private ObserverOnNextListener listener;
-    private Context context;
 
-    public MyObserver(Context context, ObserverOnNextListener listener) {
-        this.listener = listener;
-        this.context = context;
-    }
+  private static final String TAG = "MyObserver";
+  private final ObserverOnNextListener listener;
+  private final Context context;
 
-    @Override
-    public void onSubscribe(Disposable d) {
-        Log.d(TAG, "onSubscribe");
-        //add business here
-    }
+  public MyObserver(Context context, ObserverOnNextListener listener) {
+    this.listener = listener;
+    this.context = context;
+  }
 
-    @Override
-    public void onNext(T t){
-        listener.onNext(t);
-    }
+  @Override
+  public void onSubscribe(Disposable d) {
+    Log.d(TAG, "onSubscribe");
+    //add business here
+  }
 
-    @Override
-    public void onError(Throwable e) {
-        Log.e(TAG, "onError:" + e.getLocalizedMessage());
-        //add business here
-    }
+  @Override
+  public void onNext(T t) {
+    listener.onNext(t);
+  }
 
-    @Override
-    public void onComplete() {
-        Log.d(TAG, "onComplete");
-    }
+  @Override
+  public void onError(Throwable e) {
+    Log.e(TAG, "onError:" + e.getLocalizedMessage());
+    //add business here
+  }
+
+  @Override
+  public void onComplete() {
+    Log.d(TAG, "onComplete");
+  }
 }
