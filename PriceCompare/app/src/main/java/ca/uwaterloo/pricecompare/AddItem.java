@@ -8,7 +8,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -29,92 +29,50 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
-import ca.uwaterloo.pricecompare.model.Item;
-import ca.uwaterloo.pricecompare.model.Product;
-import ca.uwaterloo.pricecompare.DataReq.MyObserver;
-import ca.uwaterloo.pricecompare.DataReq.ObserverOnNextListener;
-import ca.uwaterloo.pricecompare.DataReq.http.ApiMethods;
+import ca.uwaterloo.pricecompare.models.Item;
+import ca.uwaterloo.pricecompare.models.Product;
+import ca.uwaterloo.pricecompare.models.Store;
+import ca.uwaterloo.pricecompare.util.FirebaseUtil;
+import ca.uwaterloo.pricecompare.util.StoreCache;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
-
-class RetrieveURLContent extends AsyncTask<String, Void, String> {
-
-  private static String convertStreamToString(InputStream is) {
-
-    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-    StringBuilder sb = new StringBuilder();
-
-    String line;
-    try {
-      while ((line = reader.readLine()) != null) {
-        sb.append(line).append("\n");
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      try {
-        is.close();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
-    return sb.toString();
-  }
-
-  protected String doInBackground(String... urlToRead) {
-    try {
-      URL url = new URL(urlToRead[0]);
-      InputStream is = url.openStream();
-      JSONTokener tokener = new JSONTokener(convertStreamToString(is));
-      JSONObject object = new JSONObject(tokener);
-      JSONObject courses = (JSONObject) object.getJSONArray("items").get(0);
-      return (String) courses.get("title");
-    } catch (Exception e) {
-      return null;
-    }
-  }
-}
-
 
 public class AddItem extends AppCompatActivity {
 
-  // Member variables
   public static final int REQUEST_CAMERA = 1;
   public static final int REQUEST_ALBUM = 2;
-  private static final String ITEM_REQUEST_URL = "https://api.upcitemdb.com/prod/trial/lookup?upc=";
   private static final int REQUEST_PERMISSION_CODE = 3;
   private static final String[] PERMISSIONS_STORAGE = {
       Manifest.permission.READ_EXTERNAL_STORAGE,
       Manifest.permission.WRITE_EXTERNAL_STORAGE};
+  private static final String TAG = "[AddItem]";
   PopupWindow popupPhotoWindow;
   PopupWindow popupCategorySelectWindow;
   PopupWindow popupStoreSelectWindow;
   // Data
   double lat, lng;
-  String nearestStore = "";
+  Store nearestStore;
   private File output;
   private Uri imageUri;
   private ImageView image;
   private Button categorySelectButton;
-  private int categorySelected = 0;
+  private String categorySelected;
   private Button storeSelectButton;
-  private String storeSelected;
+  private Store storeSelected;
   private Boolean categorySelectedBoolean = false;
   private EditText textUPC;
   private EditText textName;
@@ -122,7 +80,8 @@ public class AddItem extends AppCompatActivity {
   private final int newStoreFlag = 0;
   private int productNameChangeFlag = 0;
   private FusedLocationProviderClient mFusedLocationClient;
-  private final HashMap<String, List<Double>> stores = new HashMap<>();
+  private FirebaseFirestore firestore;
+  private List<Store> stores;
 
   // Utility functions
 
@@ -213,38 +172,37 @@ public class AddItem extends AppCompatActivity {
 
     btEntertainment.setOnClickListener(v -> {
       categorySelectButton.setText(getResources().getString(R.string.cat_entertainment));
-      //categorySelected = "Entertainment";
-      categorySelected = 0;  //0: entertainment
+      categorySelected = "entertainment";
       popupCategorySelectWindow.dismiss();
       categorySelectedBoolean = true;
     });
     btFood.setOnClickListener(v -> {
       categorySelectButton.setText(getResources().getString(R.string.cat_food));
-      categorySelected = 1; //1: Food
+      categorySelected = "food";
       popupCategorySelectWindow.dismiss();
       categorySelectedBoolean = true;
     });
     btDrink.setOnClickListener(v -> {
       categorySelectButton.setText(getResources().getString(R.string.cat_drink));
-      categorySelected = 2; //drink;
+      categorySelected = "drink";
       popupCategorySelectWindow.dismiss();
       categorySelectedBoolean = true;
     });
     btHome.setOnClickListener(v -> {
       categorySelectButton.setText(getResources().getString(R.string.cat_home));
-      categorySelected = 3; //getResources().getString(R.string.cat_home);
+      categorySelected = "home";
       popupCategorySelectWindow.dismiss();
       categorySelectedBoolean = true;
     });
     btWellness.setOnClickListener(v -> {
       categorySelectButton.setText(getResources().getString(R.string.cat_wellness));
-      categorySelected = 4;// getResources().getString(R.string.cat_wellness);
+      categorySelected = "wellness";
       popupCategorySelectWindow.dismiss();
       categorySelectedBoolean = true;
     });
     btOffice.setOnClickListener(v -> {
       categorySelectButton.setText(getResources().getString(R.string.cat_office));
-      categorySelected = 5;//getResources().getString(R.string.cat_office);
+      categorySelected = "office";
       popupCategorySelectWindow.dismiss();
       categorySelectedBoolean = true;
     });
@@ -305,10 +263,12 @@ public class AddItem extends AppCompatActivity {
     Log.v("INFO", String.valueOf(lng));
 
     double minDistanceSq = Double.MAX_VALUE;
+    nearestStore = stores.get(0);
 
-    for (String store : stores.keySet()) {
-      double storeLat = stores.get(store).get(0);
-      double storeLng = stores.get(store).get(1);
+    // Use manhattan distance for now
+    for (Store store : stores) {
+      double storeLat = store.getLocation().getLatitude();
+      double storeLng = store.getLocation().getLongitude();
       if ((lat - storeLat) * (lat - storeLat) + (lng - storeLng) * (lng - storeLng)
           < minDistanceSq) {
         nearestStore = store;
@@ -322,9 +282,9 @@ public class AddItem extends AppCompatActivity {
     View popupStoreView = View.inflate(this, R.layout.popup_store_select_window, null);
 
     LinearLayout storeScrollView = popupStoreView.findViewById(R.id.storeScrollLayout);
-    for (String store : stores.keySet()) {
+    for (Store store : stores) {
       Button newButton = new Button(this);
-      newButton.setText(store);
+      newButton.setText(store.getName());
       newButton.setBackgroundColor(getResources().getColor(R.color.white));
       newButton.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
       newButton.setPaddingRelative(130, 0, 0, 0);
@@ -334,7 +294,7 @@ public class AddItem extends AppCompatActivity {
           LayoutParams.WRAP_CONTENT));
       storeScrollView.addView(newButton);
       newButton.setOnClickListener(v -> {
-        storeSelectButton.setText(store);
+        storeSelectButton.setText(store.getName());
         storeSelected = store;
         popupStoreSelectWindow.dismiss();
       });
@@ -417,41 +377,30 @@ public class AddItem extends AppCompatActivity {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
   }
 
+  @RequiresApi(api = VERSION_CODES.N)
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_add_item);
     mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+    StoreCache.getStoreCache().init(stores -> this.stores = stores);
 
-    // Add stores. Will be replaced with database visit in the future.
-    InputStream inputStream = getResources().openRawResource(R.raw.stores);
-    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-    String line;
-    try {
-      while ((line = reader.readLine()) != null) {
-        String[] tokens = line.split(",");
-        stores.put(tokens[0],
-            Arrays.asList(Double.parseDouble(tokens[1]), Double.parseDouble(tokens[2])));
-        Log.v("INFO", tokens[0] + ": " + tokens[1] + ", " + tokens[2]);
-      }
-    } catch (Exception e) {
-      Log.v("error", e.toString());
-    }
+    firestore = FirebaseUtil.getFirestore();
 
     // Update nearest store
     getLocation();
 
     // Get UPC from scanner
     Intent intent = getIntent();
-    String upc_string = intent.getStringExtra("upc");
-    String store_string = intent.getStringExtra("store");
+    String upc = intent.getStringExtra("upc");
+    String storeName = intent.getStringExtra("store");
     String activity = intent.getStringExtra("activity");
 
     // Set UPC textEdit
     textUPC = findViewById(R.id.edt_add_UPC);
-    textUPC.setText(upc_string);
+    textUPC.setText(upc);
 
-    // Keep the dollar sign of the price textEdit - Han
+    // Keep the dollar sign of the price textEdit
     textPrice = findViewById(R.id.editText_price);
     textPrice.setText("$");
     Selection.setSelection(textPrice.getText(), textPrice.getText().length());
@@ -459,14 +408,10 @@ public class AddItem extends AppCompatActivity {
 
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
-        // Do nothing
-
       }
 
       @Override
-      public void beforeTextChanged(CharSequence s, int start, int count,
-          int after) {
-        // Do nothing
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
       }
 
       @Override
@@ -496,14 +441,24 @@ public class AddItem extends AppCompatActivity {
     if (activity.equals("display")) {
       // get product information from database and display
       // Set produce name
-      ObserverOnNextListener<List<Product>> ProductListener = products -> {
-        EditText textName = findViewById(R.id.edt_add_name);
-        textName.setText(products.get(0).getName());
-        categorySelectButton.setText(products.get(0).getCategory());
-      };
-      ApiMethods.getProduct(new MyObserver<>(this, ProductListener), upc_string);
-      storeSelected = store_string;
-      storeSelectButton.setText(store_string);
+      firestore
+          .collection("products")
+          .document(upc)
+          .get()
+          .addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+              DocumentSnapshot document = task.getResult();
+              EditText textName = findViewById(R.id.edt_add_name);
+              textName.setText((String) document.get("name"));
+              categorySelectButton.setText((String) document.get("category"));
+              Log.d(TAG, document.getId() + " => " + document.getData());
+            } else {
+              Log.d(TAG, "Error getting documents: ", task.getException());
+            }
+          });
+
+      storeSelected = StoreCache.getStoreCache().lookUpStoreName(storeName);
+      storeSelectButton.setText(storeName);
       categorySelectedBoolean = true;
       productNameChangeFlag = 1;
 
@@ -512,13 +467,24 @@ public class AddItem extends AppCompatActivity {
     else {
       // Set the nearest store
       getNearestStore();
-      nearestStore = "Waterloo Central";
-      storeSelectButton.setText(nearestStore);
+      storeSelectButton.setText(nearestStore.getName());
       storeSelected = nearestStore;
       // get product name from the website and set
       try {
-        String name = new RetrieveURLContent().execute(ITEM_REQUEST_URL + upc_string).get();
-        textName.setText(name);
+        firestore
+            .collection("products")
+            .document(upc)
+            .get()
+            .addOnCompleteListener(task -> {
+              if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                String productName = (String) document.get("name");
+                textName.setText(productName);
+                Log.d(TAG, document.getId() + " => " + document.getData());
+              } else {
+                Log.d(TAG, "Error getting documents: ", task.getException());
+              }
+            });
       } catch (Exception e) {
         Log.v("ASYNC_ERROR", e.toString());
       }
@@ -533,6 +499,7 @@ public class AddItem extends AppCompatActivity {
     return true;
   }
 
+  @RequiresApi(api = VERSION_CODES.R)
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     // Handle action bar item clicks here. The action bar will
@@ -548,31 +515,29 @@ public class AddItem extends AppCompatActivity {
 
 //---------------------request and data received----------------------------
 
-        storeSelected.replaceAll("\\s", "%20");
         String UPC = textUPC.getText().toString();
         String productName = textName.getText().toString();
         String price = textPrice.getText().toString().substring(1);
 
         if (categorySelectedBoolean && !UPC.equals("") && !productName.equals("") && !price
             .equals("")) {
-          ObserverOnNextListener<List<Item>> itemListener = items -> {
-            Toast addItemToast = Toast.makeText(this, "AddItem: " + items.get(0).getMsg(),
-                Toast.LENGTH_SHORT);
-            addItemToast.show();
-            Log.d("item", "" + items.get(0).getMsg());
-          };
-
-          String url = String.format("/Item/Insert?item=%d?=%d?=%s?=%s?=%d?=%s?=%f",
-              newStoreFlag, productNameChangeFlag, UPC, productName, categorySelected,
-              storeSelected, Float.parseFloat(price));
-          ApiMethods.createItem(new MyObserver<>(this, itemListener),
-              url);
-          Intent intent = new Intent(this, MainActivity.class);
-          startActivity(intent);
+          Product product = new Product(productName, categorySelected);
+          //TODO: Replace name with id
+          Item it = new Item(UPC, storeSelected.getId(), Double.parseDouble(price));
+          firestore
+              .collection("products")
+              .document(UPC)
+              .set(product)
+              .addOnCompleteListener(
+                  task -> Toast.makeText(this, "Added product: " + product, Toast.LENGTH_SHORT)
+                      .show());
+          firestore
+              .collection("items")
+              .add(it)
+              .addOnCompleteListener(
+                  task -> Toast.makeText(this, "Added item: " + it, Toast.LENGTH_SHORT).show());
         } else {
-          Toast fillInToast = Toast.makeText(this, "Please fill in the form completely",
-              Toast.LENGTH_SHORT);
-          fillInToast.show();
+          Toast.makeText(this, "Please fill all the information", Toast.LENGTH_SHORT).show();
         }
 
 //---------------------------------------------------------------------------

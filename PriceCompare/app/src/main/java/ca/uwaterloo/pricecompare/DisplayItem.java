@@ -18,24 +18,19 @@ import android.widget.PopupWindow;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import ca.uwaterloo.pricecompare.model.BestPrice;
-import ca.uwaterloo.pricecompare.model.Product;
-import ca.uwaterloo.pricecompare.model.Stock;
-import ca.uwaterloo.pricecompare.DataReq.MyObserver;
-import ca.uwaterloo.pricecompare.DataReq.ObserverOnNextListener;
-import ca.uwaterloo.pricecompare.DataReq.http.ApiMethods;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import ca.uwaterloo.pricecompare.models.Item;
+import ca.uwaterloo.pricecompare.models.Store;
+import ca.uwaterloo.pricecompare.util.FirebaseUtil;
+import ca.uwaterloo.pricecompare.util.StoreCache;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 public class DisplayItem extends AppCompatActivity {
 
+  private static final String TAG = "[DisplayItem]";
   PopupWindow popupStoreSelectWindow;
-  private final HashMap<String, List<Double>> stores = new HashMap<>();
   private ImageView image;
+  private FirebaseFirestore firestore;
 
   public void displayStore(String upc) {
 
@@ -46,26 +41,26 @@ public class DisplayItem extends AppCompatActivity {
         WindowManager.LayoutParams.WRAP_CONTENT));
     storeScrollView.addView(table);
 
-    for (String store : stores.keySet()) {
+    for (Store store : StoreCache.getStoreCache().getStores()) {
       Drawable img = getResources().getDrawable(R.drawable.ic_store_black_24dp);
-        if (store.toLowerCase().contains("sobey")) {
-            img = getResources().getDrawable(R.drawable.sobeys_inv);
-        } else if (store.toLowerCase().contains("food basics")) {
-            img = getResources().getDrawable(R.drawable.foodbasics_inv);
-        } else if (store.toLowerCase().contains("tnt")) {
-            img = getResources().getDrawable(R.drawable.tnt_inv);
-        } else if (store.toLowerCase().contains("walmart")) {
-            img = getResources().getDrawable(R.drawable.walmart_inv);
-        } else if (store.toLowerCase().contains("waterloo central")) {
-            img = getResources().getDrawable(R.drawable.wcentral_inv);
-        } else if (store.toLowerCase().contains("zehrs")) {
-            img = getResources().getDrawable(R.drawable.zehrs_inv);
-        }
+      if (store.getName().toLowerCase().contains("sobey")) {
+        img = getResources().getDrawable(R.drawable.sobeys_inv);
+      } else if (store.getName().toLowerCase().contains("food basics")) {
+        img = getResources().getDrawable(R.drawable.foodbasics_inv);
+      } else if (store.getName().toLowerCase().contains("t&t")) {
+        img = getResources().getDrawable(R.drawable.tnt_inv);
+      } else if (store.getName().toLowerCase().contains("walmart")) {
+        img = getResources().getDrawable(R.drawable.walmart_inv);
+      } else if (store.getName().toLowerCase().contains("waterloo central")) {
+        img = getResources().getDrawable(R.drawable.wcentral_inv);
+      } else if (store.getName().toLowerCase().contains("zehrs")) {
+        img = getResources().getDrawable(R.drawable.zehrs_inv);
+      }
 
       img.setBounds(0, 0, 100, 100);
 
       TextView newTextStore = new TextView(this);
-      newTextStore.setText(store + ":");
+      newTextStore.setText(store.getName() + ":");
       newTextStore.setBackgroundColor(getResources().getColor(R.color.white));
       newTextStore.setCompoundDrawables(img, null, null, null);
       newTextStore.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
@@ -79,31 +74,36 @@ public class DisplayItem extends AppCompatActivity {
         Intent intent = new Intent(this, AddItem.class);
         intent.putExtra("upc", upc);
         intent.putExtra("activity", "display");
-        intent.putExtra("store", store);
+        intent.putExtra("store", store.getName());
         startActivity(intent);
       });
       table.addView(newTextStore);
       TextView newTextPrice = new TextView(this);
       // if the price exists in the database, show the pircetext
-      ObserverOnNextListener<List<Stock>> StockListener = stocks -> {
-        //product doesn't exists in the database
-        if (stocks.get(0).getMsg() != null) {
-          newTextPrice.setBackgroundColor(getResources().getColor(R.color.white));
-          newTextPrice.setPaddingRelative(230, 0, 0, 0);
-          newTextPrice.setTextSize(17);
-          newTextPrice.setText("no pirce yet");
-        }
-        //exists
-        else {
-          newTextPrice.setBackgroundColor(getResources().getColor(R.color.white));
-          newTextPrice.setPaddingRelative(230, 0, 0, 0);
-          newTextPrice.setTextSize(17);
-          newTextPrice.setText(String.valueOf(stocks.get(0).getPrice()));
-        }
-      };
-      table.addView(newTextPrice);
-      ApiMethods.getStock(new MyObserver<>(this, StockListener), upc, store);
-
+      firestore
+          .collection("items")
+          .whereEqualTo("storeId", store.getId())
+          .whereEqualTo("upc", upc)
+          .get()
+          .addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+              for (QueryDocumentSnapshot document : task.getResult()) {
+                // should have only one result
+                newTextPrice.setBackgroundColor(getResources().getColor(R.color.white));
+                newTextPrice.setPaddingRelative(230, 0, 0, 0);
+                newTextPrice.setTextSize(17);
+                newTextPrice.setText(String.valueOf(document.get("price")));
+                return;
+              }
+              // does not exist in db
+              newTextPrice.setBackgroundColor(getResources().getColor(R.color.white));
+              newTextPrice.setPaddingRelative(230, 0, 0, 0);
+              newTextPrice.setTextSize(17);
+              newTextPrice.setText("N/A");
+            } else {
+              Log.d(TAG, "Error getting documents: ", task.getException());
+            }
+          });
     }
 
     Button btCancel = popupStoreView.findViewById(R.id.pop_store_diplay_button_cancel);
@@ -134,6 +134,7 @@ public class DisplayItem extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_display_item);
 
+    firestore = FirebaseUtil.getFirestore();
     //get upc code from scanner and set it to edit_text
     Intent intent = getIntent();
     String UPC = intent.getStringExtra("upc");
@@ -162,42 +163,36 @@ public class DisplayItem extends AppCompatActivity {
         image.setImageResource(R.drawable.wellness);
         break;
     }
+    EditText textName = findViewById(R.id.DisplayProductName);
+    textName.setText(intent.getStringExtra("name"));
 
-    // get product information from database and display
-    ObserverOnNextListener<List<Product>> ProductListener = products -> {
-      EditText textName = findViewById(R.id.DisplayProductName);
-      textName.setText(products.get(0).getName());
-    };
-    ApiMethods.getProduct(new MyObserver<>(this, ProductListener), UPC);
-
-    //get stock information from database and display
-    ObserverOnNextListener<List<BestPrice>> bestPriceListener = bestPrices -> {
-
-      //Toast.makeText(getBaseContext(), "AddI" + products.get(0).getMsg(), Toast.LENGTH_LONG);
-      Log.d("BP", "" + bestPrices.get(0).getStoreName());
-      // Show best price
-      EditText textBestPrice = findViewById(R.id.DisplayBestprice);
-      textBestPrice.setText(String.valueOf(bestPrices.get(0).getPrice()));
-      EditText textStore = findViewById(R.id.DisplayRecStore);
-      textStore.setText(bestPrices.get(0).getStoreName());
-    };
-    ApiMethods.getBestPrice(new MyObserver<>(this, bestPriceListener), UPC);
-
-    // Add stores. Will be replaced with database visit in the future.
-    InputStream inputStream = getResources().openRawResource(R.raw.stores);
-    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-    String line;
-    try {
-      while ((line = reader.readLine()) != null) {
-        String[] tokens = line.split(",");
-        stores.put(tokens[0],
-            Arrays.asList(Double.parseDouble(tokens[1]), Double.parseDouble(tokens[2])));
-        Log.v("INFO", tokens[0] + ": " + tokens[1] + ", " + tokens[2]);
-      }
-    } catch (Exception e) {
-      Log.v("error", e.toString());
-    }
-
+    // show best price
+    firestore
+        .collection("items")
+        .whereEqualTo("upc", UPC)
+        .get()
+        .addOnCompleteListener(task -> {
+          if (task.isSuccessful()) {
+            String bestPriceStoreID = null;
+            double bestPrice = Double.MAX_VALUE;
+            for (QueryDocumentSnapshot document : task.getResult()) {
+              // should have at least one result, display best price
+              Item item = document.toObject(Item.class);
+              if (item.getPrice() < bestPrice) {
+                bestPrice = item.getPrice();
+                bestPriceStoreID = item.getStoreId();
+              }
+            }
+            if (bestPriceStoreID != null) {
+              EditText textBestPrice = findViewById(R.id.DisplayBestprice);
+              textBestPrice.setText(String.valueOf(bestPrice));
+              EditText textStore = findViewById(R.id.DisplayRecStore);
+              textStore.setText(StoreCache.getStoreCache().lookUpStoreId(bestPriceStoreID).getName());
+            }
+          } else {
+            Log.d(TAG, "Error getting documents: ", task.getException());
+          }
+        });
     //View all stores
     Button displayStoreButton = findViewById(R.id.display_store);
     displayStoreButton.setOnClickListener(v -> displayStore(UPC));

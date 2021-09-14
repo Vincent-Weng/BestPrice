@@ -1,7 +1,9 @@
 package ca.uwaterloo.pricecompare;
 
 import android.content.Intent;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,18 +13,28 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import ca.uwaterloo.pricecompare.models.Store;
+import ca.uwaterloo.pricecompare.util.FirebaseUtil;
+import ca.uwaterloo.pricecompare.util.StoreCache;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.common.collect.ImmutableList;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
 
-  private final List<Store> storeList = new ArrayList<>();
+  private static final String TAG = "[MainActivity]";
 
+  @RequiresApi(api = VERSION_CODES.N)
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -30,66 +42,56 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
-    initStore();
+    Button buttonWellness = findViewById(R.id.cat_button_4);
+    buttonWellness.setOnClickListener(v -> {
+      Intent intentWellness = new Intent(MainActivity.this, DisplayCategory.class);
+      intentWellness.putExtra("category", "wellness");
+      startActivity(intentWellness);
+    });
+
+    Button buttonOffice = findViewById(R.id.cat_button_5);
+    buttonOffice.setOnClickListener(v -> {
+      Intent intentOffice = new Intent(MainActivity.this, DisplayCategory.class);
+      intentOffice.putExtra("category", "office");
+      startActivity(intentOffice);
+    });
+
+    Button buttonEntmt = findViewById(R.id.cat_button_0);
+    buttonEntmt.setOnClickListener(v -> {
+      Intent intentEntmt = new Intent(MainActivity.this, DisplayCategory.class);
+      intentEntmt.putExtra("category", "entertainment");
+      startActivity(intentEntmt);
+    });
+
+    Button buttonFood = findViewById(R.id.cat_button_1);
+    buttonFood.setOnClickListener(v -> {
+      Intent intentFood = new Intent(MainActivity.this, DisplayCategory.class);
+      intentFood.putExtra("category", "food");
+      startActivity(intentFood);
+    });
+
+    Button buttonDrink = findViewById(R.id.cat_button_2);
+    buttonDrink.setOnClickListener(v -> {
+      Intent intentDrink = new Intent(MainActivity.this, DisplayCategory.class);
+      intentDrink.putExtra("category", "drink");
+      startActivity(intentDrink);
+    });
+
+    Button buttonHome = findViewById(R.id.cat_button_3);
+    buttonHome.setOnClickListener(v -> {
+      Intent intentHome = new Intent(MainActivity.this, DisplayCategory.class);
+      intentHome.putExtra("category", "home");
+      startActivity(intentHome);
+    });
+
     RecyclerView recyclerView = findViewById(R.id.recycler_view);
     LinearLayoutManager layoutManager = new LinearLayoutManager(this);
     layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
     recyclerView.setLayoutManager(layoutManager);
-    StoreAdapter adapter = new StoreAdapter(storeList);
-    recyclerView.setAdapter(adapter);
 
-    Button button1 = findViewById(R.id.cat_button_4);
-    button1.setOnClickListener(v -> {
-      Intent int1 = new Intent(MainActivity.this, DisplayCategory.class);
-      Bundle bundle = new Bundle();
-      bundle.putInt("Category", 4);
-      int1.putExtras(bundle);
-      startActivity(int1);
-    });
-
-    Button button2 = findViewById(R.id.cat_button_5);
-    button2.setOnClickListener(v -> {
-      Intent int2 = new Intent(MainActivity.this, DisplayCategory.class);
-      Bundle bundle = new Bundle();
-      bundle.putInt("Category", 5);
-      int2.putExtras(bundle);
-      startActivity(int2);
-    });
-
-    Button button3 = findViewById(R.id.cat_button_0);
-    button3.setOnClickListener(v -> {
-      Intent int3 = new Intent(MainActivity.this, DisplayCategory.class);
-      Bundle bundle = new Bundle();
-      bundle.putInt("Category", 0);
-      int3.putExtras(bundle);
-      startActivity(int3);
-    });
-
-    Button button4 = findViewById(R.id.cat_button_1);
-    button4.setOnClickListener(v -> {
-      Intent int4 = new Intent(MainActivity.this, DisplayCategory.class);
-      Bundle bundle = new Bundle();
-      bundle.putInt("Category", 1);
-      int4.putExtras(bundle);
-      startActivity(int4);
-    });
-
-    Button button5 = findViewById(R.id.cat_button_2);
-    button5.setOnClickListener(v -> {
-      Intent int5 = new Intent(MainActivity.this, DisplayCategory.class);
-      Bundle bundle = new Bundle();
-      bundle.putInt("Category", 2);
-      int5.putExtras(bundle);
-      startActivity(int5);
-    });
-
-    Button button6 = findViewById(R.id.cat_button_3);
-    button6.setOnClickListener(v -> {
-      Intent int6 = new Intent(MainActivity.this, DisplayCategory.class);
-      Bundle bundle = new Bundle();
-      bundle.putInt("Category", 3);
-      int6.putExtras(bundle);
-      startActivity(int6);
+    StoreCache.getStoreCache().init(stores -> {
+      StoreAdapter adapter = new StoreAdapter(stores);
+      recyclerView.setAdapter(adapter);
     });
 
     FloatingActionButton fab = findViewById(R.id.add_button);
@@ -97,29 +99,6 @@ public class MainActivity extends AppCompatActivity {
       Intent intent = new Intent(MainActivity.this, ScannerActivity.class);
       startActivity(intent);
     });
-
-
-  }
-
-  private void initStore() {
-    for (int i = 0; i < 2; i++) {
-      Store sobeys1 = new Store("Sobeys Columbia", R.drawable.sobeys);
-      storeList.add(sobeys1);
-      Store zehrs1 = new Store("Zehrs Conestoga", R.drawable.zehrs);
-      storeList.add(zehrs1);
-      Store tnt = new Store("TNT Waterloo", R.drawable.tnt);
-      storeList.add(tnt);
-      Store wcentral = new Store("Waterloo Central", R.drawable.wcentral);
-      storeList.add(wcentral);
-      Store walmart = new Store("Walmart Waterloo", R.drawable.walmart);
-      storeList.add(walmart);
-      Store foodBasic = new Store("Food Basics Laurelwood", R.drawable.foodbasics);
-      storeList.add(foodBasic);
-      Store sobeys2 = new Store("Sobeys Bridgeport", R.drawable.sobeys);
-      storeList.add(sobeys2);
-      Store zehrs2 = new Store("Zehrs Lincoln", R.drawable.zehrs);
-      storeList.add(zehrs2);
-    }
   }
 
   @Override
@@ -211,26 +190,4 @@ public class MainActivity extends AppCompatActivity {
       }
     }
   }
-
-
-  public class Store {
-
-    private final String name;
-    private final int imageId;
-
-    public Store(String name, int imageId) {
-      this.name = name;
-      this.imageId = imageId;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public int getImageId() {
-      return imageId;
-    }
-  }
-
-
 }

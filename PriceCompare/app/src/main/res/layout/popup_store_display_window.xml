@@ -24,7 +24,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:id="@+id/linearLayout6"
+            android:id="@+id/tableTitleStore"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -47,7 +47,7 @@
             android:id="@+id/constraintLayout2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout6"
+            app:layout_constraintTop_toBottomOf="@+id/tableTitleStore"
             tools:layout_editor_absoluteX="0dp">
 
             <TextView

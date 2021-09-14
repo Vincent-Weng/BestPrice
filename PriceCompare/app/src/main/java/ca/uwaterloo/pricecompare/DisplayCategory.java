@@ -1,92 +1,95 @@
 package ca.uwaterloo.pricecompare;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import androidx.appcompat.app.AppCompatActivity;
-import ca.uwaterloo.pricecompare.model.RecommendationCategory;
-import ca.uwaterloo.pricecompare.DataReq.MyObserver;
-import ca.uwaterloo.pricecompare.DataReq.ObserverOnNextListener;
-import ca.uwaterloo.pricecompare.DataReq.http.ApiMethods;
+import ca.uwaterloo.pricecompare.models.Item;
+import ca.uwaterloo.pricecompare.models.Product;
+import ca.uwaterloo.pricecompare.util.StoreCache;
+import com.google.common.collect.ImmutableMap;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DisplayCategory extends AppCompatActivity {
 
+  private static final String TAG = "[DisplayCategory]";
   private String category = "";
-
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_display_category);
-    // get different labels from 6 different category intents
-    Bundle bundle = this.getIntent().getExtras();
-    //  Category is the flag to get different items from database
-    int categoryInt = bundle.getInt("Category");
+    category = getIntent().getStringExtra("category");
 
-    switch (categoryInt) {
-      case 0:
-        category = "Entertainment";
-        break;
-      case 1:
-        category = "Food";
-        break;
-      case 2:
-        category = "Drink";
-        break;
-      case 3:
-        category = "Home";
-        break;
-      case 4:
-        category = "Wellness";
-        break;
-      case 5:
-        category = "Office";
-    }
+    List<Map<String, Object>> data = new ArrayList<>();
 
-    ArrayList<HashMap<String, Object>> users = new ArrayList<HashMap<String, Object>>();
-    HashMap<String, String> nameToUPC = new HashMap<>();
-    ObserverOnNextListener<List<RecommendationCategory>> RecommandationCategory = recommendationCategories -> {
-
-      for (int i = 0; i < 10; i++) {
-        HashMap<String, Object> user = new HashMap<String, Object>();
-        user.put("product", String.valueOf(recommendationCategories.get(i).getName()));
-        user.put("price", String.valueOf(recommendationCategories.get(i).getPrice()));
-        user.put("store", String.valueOf(recommendationCategories.get(i).getStoreName()));
-        nameToUPC.put(String.valueOf(recommendationCategories.get(i).getName()),
-            String.valueOf(recommendationCategories.get(i).getUPC()));
-        users.add(user);
-      }
-
-      SimpleAdapter saImageItems = new SimpleAdapter(this,
-          users,
-          R.layout.user,
-          new String[]{"product", "price", "store"},
-          new int[]{R.id.product, R.id.price, R.id.category});
-      ListView usersListview = findViewById(R.id.users);
-      usersListview.setOnItemClickListener((parent, view, position, id) -> {
-        Object listItem = usersListview.getItemAtPosition(position);
-        String UPC = listItem.toString().replaceFirst(".*?product=", "");
-        UPC = UPC.replaceFirst(",\\s+price=.*", "");
-        UPC = nameToUPC.get(UPC);
-        Log.d("UPC", UPC);
-        Log.d("item", listItem.toString());
-        Log.d("category", category);
-        Intent intent = new Intent(DisplayCategory.this, DisplayItem.class);
-        intent.putExtra("upc", UPC);
-        intent.putExtra("activity", "scanner");
-        intent.putExtra("category", category);
-        startActivity(intent);
-      });
-      usersListview.setAdapter(saImageItems);
-    };
-    ApiMethods
-        .getRecommendationByCategory(new MyObserver<>(this, RecommandationCategory), categoryInt);
-
+    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    firestore
+        .collection("categories")
+        .document(category)
+        .get()
+        .addOnCompleteListener(t1 -> {
+          if (t1.isSuccessful()) {
+            DocumentSnapshot doc = t1.getResult();
+            List<DocumentReference> recommendations = Objects.requireNonNull((List<DocumentReference>) doc.get("recommendations"));
+            AtomicInteger counter = new AtomicInteger(recommendations.size());
+            for (DocumentReference docRef : recommendations) {
+              docRef.get().addOnCompleteListener(t2 -> {
+                if (t2.isSuccessful()) {
+                  Item item = Objects.requireNonNull(t2.getResult().toObject(Item.class));
+                  firestore
+                      .collection("products")
+                      .document(item.getUpc())
+                      .get()
+                      .addOnCompleteListener(t3 -> {
+                        if (t3.isSuccessful()) {
+                          Product product = Objects
+                              .requireNonNull(t3.getResult().toObject(Product.class));
+                          data.add(ImmutableMap.of(
+                              "product", product.getName(),
+                              "price", item.getPrice(),
+                              "store",
+                              StoreCache.getStoreCache().lookUpStoreId(item.getStoreId()).getName()));
+                          if (counter.decrementAndGet() == 0) {
+                            SimpleAdapter saImageItems = new SimpleAdapter(this,
+                                data,
+                                R.layout.recommendations,
+                                new String[]{"product", "price", "store"},
+                                new int[]{R.id.product, R.id.price, R.id.note});
+                            ListView recommendationListview = findViewById(R.id.recommendations);
+                            recommendationListview.setOnItemClickListener((parent, view, position, id) -> {
+                              Object listItem = recommendationListview.getItemAtPosition(position);
+                              // String UPC = listItem.toString().replaceFirst(".*?product=", "");
+                              // UPC = UPC.replaceFirst(",\\s+price=.*", "");
+                              // UPC = nameToUPC.get(UPC);
+                              // Log.d("UPC", UPC);
+                              // Log.d("item", listItem.toString());
+                              // Log.d("category", category);
+                              // Intent intent = new Intent(DisplayCategory.this, DisplayItem.class);
+                              // intent.putExtra("upc", UPC);
+                              // intent.putExtra("activity", "scanner");
+                              // intent.putExtra("category", category);
+                              // startActivity(intent);
+                            });
+                            recommendationListview.setAdapter(saImageItems);
+                          }
+                        }
+                      });
+                }
+              });
+            }
+          } else {
+            Log.d(TAG, "Error getting documents: ", t1.getException());
+          }
+        });
   }
-
 }
+

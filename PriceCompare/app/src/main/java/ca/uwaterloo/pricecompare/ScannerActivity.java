@@ -15,19 +15,21 @@ import android.widget.PopupWindow;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import ca.uwaterloo.pricecompare.model.Product;
-import ca.uwaterloo.pricecompare.DataReq.MyObserver;
-import ca.uwaterloo.pricecompare.DataReq.ObserverOnNextListener;
-import ca.uwaterloo.pricecompare.DataReq.http.ApiMethods;
-import java.util.List;
+import ca.uwaterloo.pricecompare.models.Product;
+import ca.uwaterloo.pricecompare.util.FirebaseUtil;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import me.dm7.barcodescanner.zbar.Result;
 import me.dm7.barcodescanner.zbar.ZBarScannerView;
 
 public class ScannerActivity extends Activity implements ZBarScannerView.ResultHandler {
 
+  private static final String TAG = "[ScannerActivity]";
   boolean productExists;
   private ZBarScannerView mScannerView;
   private PopupWindow popupBarcodeConfirmWindow;
+  private FirebaseFirestore firestore;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,6 +44,8 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
       ActivityCompat
           .requestPermissions(ScannerActivity.this, new String[]{Manifest.permission.CAMERA}, 222);
     }
+
+    this.firestore = FirebaseUtil.getFirestore();
   }
 
   @Override
@@ -59,26 +63,32 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
 
 
   public void turnToDisOrAdd(String UPC) {
-
-    ObserverOnNextListener<List<Product>> ProductListener = products -> {
-      //product doesn't exists in the database
-      if (products.get(0).getMsg() != null) {
-        Log.d("item", "" + products.get(0).getMsg());
-        Intent intent = new Intent(this, AddItem.class);
-        intent.putExtra("upc", UPC);
-        intent.putExtra("activity", "scanner");
-        startActivity(intent);
-      }
-      //exists
-      else {
-        Intent intent = new Intent(this, DisplayItem.class);
-        intent.putExtra("upc", UPC);
-        intent.putExtra("activity", "scanner");
-        intent.putExtra("category", products.get(0).getCategory());
-        startActivity(intent);
-      }
-    };
-    ApiMethods.getProduct(new MyObserver<>(this, ProductListener), UPC);
+    firestore
+        .collection("products")
+        .document(UPC)
+        .get()
+        .addOnCompleteListener(task -> {
+          if (task.isSuccessful()) {
+            DocumentSnapshot document = task.getResult();
+            if (document.exists()) {
+              Product product = document.toObject(Product.class);
+              Intent intent = new Intent(this, DisplayItem.class);
+              intent.putExtra("upc", document.getId());
+              intent.putExtra("activity", "scanner");
+              intent.putExtra("category", product.getCategoryId());
+              intent.putExtra("name", product.getName());
+              startActivity(intent);
+            } else {
+              // product doesn't exists in the database
+              Intent intent = new Intent(this, AddItem.class);
+              intent.putExtra("upc", UPC);
+              intent.putExtra("activity", "scanner");
+              startActivity(intent);
+            }
+          } else {
+            Log.d(TAG, "Failed with: ", task.getException());
+          }
+        });
   }
 
   @Override
