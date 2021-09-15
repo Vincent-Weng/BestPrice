@@ -1,5 +1,6 @@
 package ca.uwaterloo.pricecompare;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
@@ -28,8 +29,9 @@ public class DisplayCategory extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_display_category);
     category = getIntent().getStringExtra("category");
+    setTitle("Recommendations for " + category);
 
-    List<Map<String, Object>> data = new ArrayList<>();
+    List<Map<String, String>> data = new ArrayList<>();
 
     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     firestore
@@ -54,30 +56,26 @@ public class DisplayCategory extends AppCompatActivity {
                           Product product = Objects
                               .requireNonNull(t3.getResult().toObject(Product.class));
                           data.add(ImmutableMap.of(
-                              "product", product.getName(),
-                              "price", item.getPrice(),
-                              "store",
-                              StoreCache.getStoreCache().lookUpStoreId(item.getStoreId()).getName()));
+                              "name", product.getName(),
+                              "price", String.valueOf(item.getPrice()),
+                              "store", StoreCache.getStoreCache().lookUpStoreId(item.getStoreId()).getName(),
+                              "UPC", item.getUpc()));
                           if (counter.decrementAndGet() == 0) {
                             SimpleAdapter saImageItems = new SimpleAdapter(this,
                                 data,
                                 R.layout.recommendations,
-                                new String[]{"product", "price", "store"},
+                                new String[]{"name", "price", "store"},
                                 new int[]{R.id.product, R.id.price, R.id.note});
                             ListView recommendationListview = findViewById(R.id.recommendations);
                             recommendationListview.setOnItemClickListener((parent, view, position, id) -> {
-                              Object listItem = recommendationListview.getItemAtPosition(position);
-                              // String UPC = listItem.toString().replaceFirst(".*?product=", "");
-                              // UPC = UPC.replaceFirst(",\\s+price=.*", "");
-                              // UPC = nameToUPC.get(UPC);
-                              // Log.d("UPC", UPC);
-                              // Log.d("item", listItem.toString());
-                              // Log.d("category", category);
-                              // Intent intent = new Intent(DisplayCategory.this, DisplayItem.class);
-                              // intent.putExtra("upc", UPC);
-                              // intent.putExtra("activity", "scanner");
-                              // intent.putExtra("category", category);
-                              // startActivity(intent);
+                              Map<String, String> itemAtPosition = (Map<String, String>) recommendationListview
+                                  .getItemAtPosition(position);
+                              Intent intent = new Intent(DisplayCategory.this, DisplayItem.class);
+                              intent.putExtra("upc", itemAtPosition.get("UPC"));
+                              intent.putExtra("activity", "scanner");
+                              intent.putExtra("name", itemAtPosition.get("name"));
+                              intent.putExtra("category", category);
+                              startActivity(intent);
                             });
                             recommendationListview.setAdapter(saImageItems);
                           }

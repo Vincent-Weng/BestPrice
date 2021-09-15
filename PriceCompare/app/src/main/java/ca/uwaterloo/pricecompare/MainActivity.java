@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = new Intent(MainActivity.this, DisplayStore.class);
         Bundle bundle = new Bundle();
-        bundle.putString("Store", store.getName());
+        bundle.putString("Store", store.getId());
         intent.putExtras(bundle);
         startActivity(intent);
       });

@@ -59,26 +59,26 @@ public class DisplayItem extends AppCompatActivity {
 
       img.setBounds(0, 0, 100, 100);
 
-      TextView newTextStore = new TextView(this);
-      newTextStore.setText(store.getName() + ":");
-      newTextStore.setBackgroundColor(getResources().getColor(R.color.white));
-      newTextStore.setCompoundDrawables(img, null, null, null);
-      newTextStore.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-      newTextStore.setPaddingRelative(130, 0, 0, 0);
-      newTextStore.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
-      newTextStore.setTextSize(17);
-      newTextStore.setTextColor(getResources().getColor(R.color.blue));
-      newTextStore.setPaintFlags(newTextStore.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-      newTextStore.setCompoundDrawablePadding(21);
-      newTextStore.setOnClickListener(v -> {
+      TextView storeNameText = new TextView(this);
+      storeNameText.setText(store.getName() + ":");
+      storeNameText.setBackgroundColor(getResources().getColor(R.color.white));
+      storeNameText.setCompoundDrawables(img, null, null, null);
+      storeNameText.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+      storeNameText.setPaddingRelative(130, 0, 0, 0);
+      storeNameText.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+      storeNameText.setTextSize(17);
+      storeNameText.setTextColor(getResources().getColor(R.color.blue));
+      storeNameText.setPaintFlags(storeNameText.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+      storeNameText.setCompoundDrawablePadding(21);
+      storeNameText.setOnClickListener(v -> {
         Intent intent = new Intent(this, AddItem.class);
         intent.putExtra("upc", upc);
         intent.putExtra("activity", "display");
         intent.putExtra("store", store.getName());
         startActivity(intent);
       });
-      table.addView(newTextStore);
-      TextView newTextPrice = new TextView(this);
+      table.addView(storeNameText);
+      TextView storePriceText = new TextView(this);
       // if the price exists in the database, show the pircetext
       firestore
           .collection("items")
@@ -89,21 +89,22 @@ public class DisplayItem extends AppCompatActivity {
             if (task.isSuccessful()) {
               for (QueryDocumentSnapshot document : task.getResult()) {
                 // should have only one result
-                newTextPrice.setBackgroundColor(getResources().getColor(R.color.white));
-                newTextPrice.setPaddingRelative(230, 0, 0, 0);
-                newTextPrice.setTextSize(17);
-                newTextPrice.setText(String.valueOf(document.get("price")));
+                storePriceText.setBackgroundColor(getResources().getColor(R.color.white));
+                storePriceText.setPaddingRelative(230, 0, 0, 0);
+                storePriceText.setTextSize(17);
+                storePriceText.setText(String.valueOf(document.get("price")));
                 return;
               }
               // does not exist in db
-              newTextPrice.setBackgroundColor(getResources().getColor(R.color.white));
-              newTextPrice.setPaddingRelative(230, 0, 0, 0);
-              newTextPrice.setTextSize(17);
-              newTextPrice.setText("N/A");
+              storePriceText.setBackgroundColor(getResources().getColor(R.color.white));
+              storePriceText.setPaddingRelative(230, 0, 0, 0);
+              storePriceText.setTextSize(17);
+              storePriceText.setText("N/A");
             } else {
               Log.d(TAG, "Error getting documents: ", task.getException());
             }
           });
+      table.addView(storePriceText);
     }
 
     Button btCancel = popupStoreView.findViewById(R.id.pop_store_diplay_button_cancel);
@@ -202,6 +203,7 @@ public class DisplayItem extends AppCompatActivity {
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
     getMenuInflater().inflate(R.menu.menu_add_item, menu);
+    menu.findItem(R.id.action_delete).setVisible(false);
     return true;
   }
 
@@ -213,8 +215,8 @@ public class DisplayItem extends AppCompatActivity {
     int id = item.getItemId();
 
     //noinspection SimplifiableIfStatement
-    if (id == R.id.action_done) {
-      this.finish();
+    if (id == R.id.action_done || id == R.id.action_delete) {
+      onBackPressed();
       return true;
     }
 

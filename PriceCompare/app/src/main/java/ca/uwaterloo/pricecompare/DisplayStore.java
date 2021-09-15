@@ -1,76 +1,98 @@
 package ca.uwaterloo.pricecompare;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import androidx.appcompat.app.AppCompatActivity;
+import ca.uwaterloo.pricecompare.models.Item;
+import ca.uwaterloo.pricecompare.models.Product;
+import ca.uwaterloo.pricecompare.models.Store;
+import ca.uwaterloo.pricecompare.util.StoreCache;
 import com.google.common.collect.ImmutableMap;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DisplayStore extends AppCompatActivity {
+
+  private static final String TAG = "[DisplayStore]";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
 
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_display_store);
-    // get different labels from 6 different category intents
-    Bundle bundle = this.getIntent().getExtras();
-    //  Category is the flag to get diffenent items from daatabase
-    String Store = bundle.getString("Store");
-    //  Toast toast=Toast.makeText(getApplicationContext(), Store+"content has been propogated", Toast.LENGTH_SHORT);
-    // toast.show();
+    String storeId = getIntent().getStringExtra("Store");
+    Store store = StoreCache.getStoreCache().lookUpStoreId(storeId);
+    setTitle("Recommendations at " + store.getName());
 
     List<Map<String, Object>> data = new ArrayList<>();
-    // ObserverOnNextListener<List<RecommendationStore>> RecommandationStore = recommendationStores -> {
-    //
-    //   for (int i = 0; i < 10; i++) {
-    //     HashMap<String, Object> user = new HashMap<String, Object>();
-    //     user.put("product", String.valueOf(recommendationStores.get(i).getName()));
-    //     user.put("price", String.valueOf(recommendationStores.get(i).getPrice()));
-    //     user.put("category", String.valueOf(recommendationStores.get(i).getCategory()));
-    //     nameToUPC.put(String.valueOf(recommendationStores.get(i).getName()),
-    //         String.valueOf(recommendationStores.get(i).getUPC()));
-    //     users.add(user);
-    //   }
-    data.add(ImmutableMap.of("product", "aaa",
-        "price", "1.00",
-        "category", "ssss"));
-    SimpleAdapter saImageItems = new SimpleAdapter(this,
-        data,
-        R.layout.recommendations,
-        new String[]{"product", "price", "category"},
-        new int[]{R.id.product, R.id.price, R.id.note});
-    //
-    ListView usersListview = findViewById(R.id.recommendations);
-    //   usersListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-    //     @Override
-    //     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    //       Object listItem = usersListview.getItemAtPosition(position);
-    //       String UPC = listItem.toString().replaceFirst(".*?product=", "");
-    //       UPC = UPC.replaceFirst(",\\s+price=.*", "");
-    //       UPC = nameToUPC.get(UPC);
-    //       String category = listItem.toString().replaceFirst(".*?category=", "");
-    //       category = category.replaceFirst("\\}", "");
-    //       Log.d("UPC", UPC);
-    //       Log.d("item", listItem.toString());
-    //       Log.d("category", category);
-    //       Intent intent = new Intent(DisplayStore.this, DisplayItem.class);
-    //       intent.putExtra("upc", UPC);
-    //       intent.putExtra("activity", "scanner");
-    //       intent.putExtra("category", category);
-    //       startActivity(intent);
-    //     }
-    //   });
-    usersListview.setAdapter(saImageItems);
-    //
-    //
-    // };
-    //
-    // ApiMethods.getRecommendationByStore(new MyObserver<>(this, RecommandationStore), Store);
+
+    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    firestore
+        .collection("stores")
+        .document(storeId)
+        .get()
+        .addOnCompleteListener(t1 -> {
+          if (t1.isSuccessful()) {
+            DocumentSnapshot doc = t1.getResult();
+            List<DocumentReference> recommendations = Objects
+                .requireNonNull((List<DocumentReference>) doc.get("recommendations"));
+            AtomicInteger counter = new AtomicInteger(recommendations.size());
+            for (DocumentReference docRef : recommendations) {
+              docRef.get().addOnCompleteListener(t2 -> {
+                if (t2.isSuccessful()) {
+                  Item item = Objects.requireNonNull(t2.getResult().toObject(Item.class));
+                  firestore
+                      .collection("products")
+                      .document(item.getUpc())
+                      .get()
+                      .addOnCompleteListener(t3 -> {
+                        if (t3.isSuccessful()) {
+                          Product product = Objects
+                              .requireNonNull(t3.getResult().toObject(Product.class));
+                          data.add(ImmutableMap.of(
+                              "name", product.getName(),
+                              "price", String.valueOf(item.getPrice()),
+                              "category", product.getCategoryId(),
+                              "UPC", item.getUpc()));
+                          if (counter.decrementAndGet() == 0) {
+                            SimpleAdapter saImageItems = new SimpleAdapter(this,
+                                data,
+                                R.layout.recommendations,
+                                new String[]{"name", "price", "category"},
+                                new int[]{R.id.product, R.id.price, R.id.note});
+                            ListView recommendationListview = findViewById(R.id.recommendations);
+                            recommendationListview
+                                .setOnItemClickListener((parent, view, position, id) -> {
+                                  Map<String, String> itemAtPosition = (Map<String, String>) recommendationListview
+                                      .getItemAtPosition(position);
+                                  Intent intent = new Intent(DisplayStore.this,
+                                      DisplayItem.class);
+                                  intent.putExtra("upc", itemAtPosition.get("UPC"));
+                                  intent.putExtra("activity", "scanner");
+                                  intent.putExtra("name", itemAtPosition.get("name"));
+                                  intent.putExtra("category", itemAtPosition.get("category"));
+                                  startActivity(intent);
+                                });
+                            recommendationListview.setAdapter(saImageItems);
+                          }
+                        }
+                      });
+                }
+              });
+            }
+          } else {
+            Log.d(TAG, "Error getting documents: ", t1.getException());
+          }
+        });
   }
 
 

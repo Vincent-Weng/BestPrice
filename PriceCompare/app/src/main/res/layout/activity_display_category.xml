@@ -21,11 +21,20 @@
             android:layout_weight=".33"
             android:layout_height="match_parent"
             android:background="@color/colorPrimary"
-            android:fontFamily="sans-serif"
-            android:gravity="center"
+            android:gravity="start"
             android:lineSpacingExtra="12sp"
-            android:text="Product"
-            android:textAlignment="center"
+            android:text="  Product"
+            android:textColor="@color/colorAppBackground"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_weight=".34"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimary"
+            android:gravity="start"
+            android:text="     Price"
             android:textColor="@color/colorAppBackground"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -35,19 +44,7 @@
             android:layout_weight=".33"
             android:layout_height="match_parent"
             android:background="@color/colorPrimary"
-            android:gravity="center"
-            android:text="Price"
-            android:textAlignment="center"
-            android:textColor="@color/colorAppBackground"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_weight=".33"
-            android:layout_height="match_parent"
-            android:background="@color/colorPrimary"
-            android:gravity="center"
+            android:gravity="start"
             android:text="Store"
             android:textColor="@color/colorAppBackground"
             android:textSize="18sp"
