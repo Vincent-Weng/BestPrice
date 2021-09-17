@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "877319882722",
+    "project_id": "bestprice-826bd",
+    "storage_bucket": "bestprice-826bd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:877319882722:android:932b3de9e36d22762d9bbb",
+        "android_client_info": {
+          "package_name": "ca.uwaterloo.pricecompare"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdpymET6vvgt3HPw6O8yu8wpZrdo2W2nI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

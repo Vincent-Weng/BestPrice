@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    >
+
+    <TableRow
+        android:layout_width="fill_parent">
+
+        <TextView
+            android:id="@+id/product"
+            android:layout_width="147dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="8dp"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/price"
+            android:layout_width="107dp"
+            android:layout_height="match_parent"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/note"
+            android:layout_width="97dp"
+            android:layout_height="match_parent"
+            android:textSize="18sp" />
+
+    </TableRow
+       >
+</TableLayout>
