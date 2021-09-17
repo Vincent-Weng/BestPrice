@@ -3,7 +3,6 @@ package ca.uwaterloo.pricecompare;
 import android.content.Intent;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,18 +22,29 @@ import androidx.recyclerview.widget.RecyclerView;
 import ca.uwaterloo.pricecompare.models.Store;
 import ca.uwaterloo.pricecompare.util.FirebaseUtil;
 import ca.uwaterloo.pricecompare.util.StoreCache;
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.common.collect.ImmutableList;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
+@RequiresApi(api = VERSION_CODES.N)
 public class MainActivity extends AppCompatActivity {
 
   private static final String TAG = "[MainActivity]";
+  private Menu menu;
+  private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
+      new FirebaseAuthUIActivityResultContract(),
+      result -> {
+        MenuItem signInButton = menu.findItem(R.id.action_sign_in);
+        signInButton.setVisible(false);
+        MenuItem signOutOption = menu.findItem(R.id.action_sign_out);
+        signOutOption.setVisible(true);
+        StoreCache.getStoreCache().init(stores -> {
+          StoreAdapter adapter = new StoreAdapter(stores);
+          RecyclerView recyclerView = findViewById(R.id.recycler_view);
+          recyclerView.setAdapter(adapter);
+        });
+      }
+  );
 
   @RequiresApi(api = VERSION_CODES.N)
   @Override
@@ -96,8 +108,12 @@ public class MainActivity extends AppCompatActivity {
 
     FloatingActionButton fab = findViewById(R.id.add_button);
     fab.setOnClickListener(view -> {
-      Intent intent = new Intent(MainActivity.this, ScannerActivity.class);
-      startActivity(intent);
+      if (FirebaseUtil.getAuth().getCurrentUser() == null) {
+        Toast.makeText(getBaseContext(), "Please sign-in first!", Toast.LENGTH_SHORT).show();
+      } else {
+        Intent intent = new Intent(MainActivity.this, ScannerActivity.class);
+        startActivity(intent);
+      }
     });
   }
 
@@ -105,6 +121,14 @@ public class MainActivity extends AppCompatActivity {
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
     getMenuInflater().inflate(R.menu.menu_main, menu);
+    this.menu = menu;
+    if (FirebaseUtil.getAuth().getCurrentUser() != null) {
+      MenuItem signInButton = menu.findItem(R.id.action_sign_in);
+      signInButton.setVisible(false);
+    } else {
+      MenuItem signOutOption = menu.findItem(R.id.action_sign_out);
+      signOutOption.setVisible(false);
+    }
     return true;
   }
 
@@ -115,9 +139,30 @@ public class MainActivity extends AppCompatActivity {
     // as you specify a parent activity in AndroidManifest.xml.
     int id = item.getItemId();
 
-    //noinspection SimplifiableIfStatement
-    if (id == R.id.action_settings) {
-      return true;
+    if (id == R.id.action_sign_in) {
+      Intent signInIntent = FirebaseUtil.getAuthUI().createSignInIntentBuilder().build();
+      FirebaseUtil.startSignIn(signInLauncher);
+    }
+
+    if (id == R.id.action_sign_out) {
+      FirebaseUtil.getAuth().signOut();
+      MenuItem signInButton = menu.findItem(R.id.action_sign_in);
+      signInButton.setVisible(true);
+      item.setVisible(false);
+    }
+
+    if (id == R.id.action_refresh_login) {
+      if (FirebaseUtil.getAuth().getCurrentUser() != null) {
+        MenuItem signInButton = menu.findItem(R.id.action_sign_in);
+        signInButton.setVisible(false);
+        MenuItem signOutOption = menu.findItem(R.id.action_sign_out);
+        signOutOption.setVisible(true);
+      } else {
+        MenuItem signInButton = menu.findItem(R.id.action_sign_in);
+        signInButton.setVisible(true);
+        MenuItem signOutOption = menu.findItem(R.id.action_sign_out);
+        signOutOption.setVisible(false);
+      }
     }
 
     return super.onOptionsItemSelected(item);

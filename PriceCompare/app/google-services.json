@@ -12,7 +12,12 @@
           "package_name": "ca.uwaterloo.pricecompare"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "877319882722-qhlq6pcehigflmsb9tjf76819roqton0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDdpymET6vvgt3HPw6O8yu8wpZrdo2W2nI"

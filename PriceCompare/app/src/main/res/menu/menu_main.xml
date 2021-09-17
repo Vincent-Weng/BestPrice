@@ -3,22 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="ca.uwaterloo.pricecompare.MainActivity">
 
-    <!--<item-->
-        <!--android:id="@+id/action_search"-->
-        <!--android:icon="@drawable/ic_search_white_24dp"-->
-        <!--android:title="@string/action_search"-->
-        <!--app:actionViewClass="android.support.v7.widget.SearchView"-->
-        <!--app:showAsAction="ifRoom|collapseActionView" />-->
+    <item
+        android:id="@+id/action_sign_in"
+        android:title="@string/sign_in"
+        android:visible="true"
+        app:showAsAction="ifRoom|collapseActionView" />
 
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_sign_out"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="@string/sign_out"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_help"
+        android:id="@+id/action_refresh_login"
         android:orderInCategory="100"
-        android:title="@string/help"
+        android:title="@string/action_refresh_login"
         app:showAsAction="never" />
 </menu>
