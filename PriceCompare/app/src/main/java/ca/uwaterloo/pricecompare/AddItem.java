@@ -42,13 +42,9 @@ import ca.uwaterloo.pricecompare.util.StoreCache;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 public class AddItem extends AppCompatActivity {
@@ -77,6 +73,7 @@ public class AddItem extends AppCompatActivity {
   private EditText textUPC;
   private EditText textName;
   private EditText textPrice;
+  private boolean productExists = false;
   private final int newStoreFlag = 0;
   private int productNameChangeFlag = 0;
   private FusedLocationProviderClient mFusedLocationClient;
@@ -390,12 +387,17 @@ public class AddItem extends AppCompatActivity {
     // Update nearest store
     getLocation();
 
-    // Get UPC from scanner
+    // Category selection
+    categorySelectButton = findViewById(R.id.button_select_category);
+    categorySelectButton.setOnClickListener(v -> selectCategory());
+    // Store selection
+    storeSelectButton = findViewById(R.id.button_select_store);
+    storeSelectButton.setOnClickListener(v -> selectStore());
+
     Intent intent = getIntent();
     String upc = intent.getStringExtra("upc");
     String storeName = intent.getStringExtra("store");
     String activity = intent.getStringExtra("activity");
-
     // Set UPC textEdit
     textUPC = findViewById(R.id.edt_add_UPC);
     textUPC.setText(upc);
@@ -428,40 +430,33 @@ public class AddItem extends AppCompatActivity {
     image.setImageResource(R.drawable.ic_launcher);
     image.setOnClickListener(v -> addimage());
 
-    // Category selection
-    categorySelectButton = findViewById(R.id.button_select_category);
-    categorySelectButton.setOnClickListener(v -> selectCategory());
-    // Store selection
-    storeSelectButton = findViewById(R.id.button_select_store);
-    storeSelectButton.setOnClickListener(v -> selectStore());
-
     textName = findViewById(R.id.edt_add_name);
 
     //the activity is from display
     if (activity.equals("display")) {
-      // get product information from database and display
-      // Set produce name
-      firestore
-          .collection("products")
-          .document(upc)
-          .get()
-          .addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-              DocumentSnapshot document = task.getResult();
-              EditText textName = findViewById(R.id.edt_add_name);
-              textName.setText((String) document.get("name"));
-              categorySelectButton.setText((String) document.get("category"));
-              Log.d(TAG, document.getId() + " => " + document.getData());
-            } else {
-              Log.d(TAG, "Error getting documents: ", task.getException());
-            }
-          });
+      productExists = true;
+
+      String prodName = intent.getStringExtra("prodName");
+      EditText textName = findViewById(R.id.edt_add_name);
+      textName.setText(prodName);
+
+      String category = intent.getStringExtra("category");
+      switch (category) {
+        case "home": categorySelectButton.setText(R.string.cat_home); break;
+        case "office": categorySelectButton.setText(R.string.cat_office); break;
+        case "food": categorySelectButton.setText(R.string.cat_food); break;
+        case "drink": categorySelectButton.setText(R.string.cat_drink); break;
+        case "wellness": categorySelectButton.setText(R.string.cat_wellness); break;
+        case "entertainment": categorySelectButton.setText(R.string.cat_entertainment); break;
+      }
+      categorySelected = category;
+      categorySelectedBoolean = true;
 
       storeSelected = StoreCache.getStoreCache().lookUpStoreName(storeName);
       storeSelectButton.setText(storeName);
+
       categorySelectedBoolean = true;
       productNameChangeFlag = 1;
-
     }
     //the activity is from scanner
     else {
@@ -494,7 +489,6 @@ public class AddItem extends AppCompatActivity {
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-    // Inflate the menu; this adds items to the action bar if it is present.
     getMenuInflater().inflate(R.menu.menu_add_item, menu);
     return true;
   }
@@ -502,28 +496,20 @@ public class AddItem extends AppCompatActivity {
   @RequiresApi(api = VERSION_CODES.R)
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
-    // Handle action bar item clicks here. The action bar will
-    // automatically handle clicks on the Home/Up button, so long
-    // as you specify a parent activity in AndroidManifest.xml.
     int id = item.getItemId();
 
-    //noinspection SimplifiableIfStatement
-    switch (id) {
-      case R.id.action_done: {
-        //this.finish();
-        //When all the inputs are done, click '√'
+    if (id == R.id.action_done) {
+      String UPC = textUPC.getText().toString();
+      String productName = textName.getText().toString();
+      String price = textPrice.getText().toString().substring(1);
 
-//---------------------request and data received----------------------------
-
-        String UPC = textUPC.getText().toString();
-        String productName = textName.getText().toString();
-        String price = textPrice.getText().toString().substring(1);
-
-        if (categorySelectedBoolean && !UPC.equals("") && !productName.equals("") && !price
-            .equals("")) {
-          Product product = new Product(productName, categorySelected);
-          //TODO: Replace name with id
-          Item it = new Item(UPC, storeSelected.getId(), Double.parseDouble(price));
+      if (categorySelectedBoolean && !UPC.equals("") && !productName.equals("") && !price
+          .equals("")) {
+        Product product = new Product(productName, categorySelected);
+        product.getViewedBy().add(FirebaseUtil.getAuth().getUid());
+        Item it = new Item(UPC, storeSelected.getId(), Double.parseDouble(price));
+        if (!productExists) {
+          // product already exists. only item (price point) needs to be added.
           firestore
               .collection("products")
               .document(UPC)
@@ -531,26 +517,21 @@ public class AddItem extends AppCompatActivity {
               .addOnCompleteListener(
                   task -> Toast.makeText(this, "Added product: " + product, Toast.LENGTH_SHORT)
                       .show());
-          firestore
-              .collection("items")
-              .add(it)
-              .addOnCompleteListener(
-                  task -> Toast.makeText(this, "Added item: " + it, Toast.LENGTH_SHORT).show());
-        } else {
-          Toast.makeText(this, "Please fill all the information", Toast.LENGTH_SHORT).show();
         }
-
-//---------------------------------------------------------------------------
-        break;
-      }
-      case R.id.action_delete: {
+        firestore
+            .collection("items")
+            .add(it)
+            .addOnCompleteListener(
+                task -> Toast.makeText(this, "Added item: " + it, Toast.LENGTH_SHORT).show());
         this.finish();
-        break;
+      } else {
+        Toast.makeText(this, "Please fill all the information", Toast.LENGTH_SHORT).show();
       }
     }
-    //return super.onOptionsItemSelected(item);
+    if (id == R.id.action_delete) {
+      this.finish();
+    }
     return true;
-    //return true;
   }
 
 

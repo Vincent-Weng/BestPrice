@@ -29,6 +29,7 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,6 +41,7 @@ public class FirebaseUtil {
     private static FirebaseFirestore FIRESTORE;
     private static FirebaseAuth AUTH;
     private static AuthUI AUTH_UI;
+    private static FirebaseMessaging MSG;
 
     public static FirebaseFirestore getFirestore() {
         if (FIRESTORE == null) {
@@ -65,6 +67,14 @@ public class FirebaseUtil {
         return AUTH_UI;
     }
 
+    public static FirebaseMessaging getMsg() {
+        if (MSG == null) {
+            MSG = FirebaseMessaging.getInstance();
+        }
+
+        return MSG;
+    }
+
     public static void startSignIn(ActivityResultLauncher<Intent> signInLauncher) {
         List<IdpConfig> providers = Arrays.asList(
             new AuthUI.IdpConfig.EmailBuilder().build(),
@@ -73,8 +83,8 @@ public class FirebaseUtil {
         Intent signInIntent = FirebaseUtil.getAuthUI()
             .createSignInIntentBuilder()
             .setAvailableProviders(providers)
-            .setLogo(R.drawable.ic_launcher)      // Set logo drawable
-            .setTheme(R.style.AppTheme)      // Set theme
+            .setLogo(R.drawable.ic_launcher)
+            .setTheme(R.style.AppTheme)
             .build();
 
         signInLauncher.launch(signInIntent);

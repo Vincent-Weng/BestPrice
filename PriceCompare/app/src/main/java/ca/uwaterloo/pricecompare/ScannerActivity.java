@@ -17,8 +17,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import ca.uwaterloo.pricecompare.models.Product;
 import ca.uwaterloo.pricecompare.util.FirebaseUtil;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import me.dm7.barcodescanner.zbar.Result;
 import me.dm7.barcodescanner.zbar.ZBarScannerView;
@@ -62,7 +62,7 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
   }
 
 
-  public void turnToDisOrAdd(String UPC) {
+  public void displayOrAddItem(String UPC) {
     firestore
         .collection("products")
         .document(UPC)
@@ -71,12 +71,17 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
           if (task.isSuccessful()) {
             DocumentSnapshot document = task.getResult();
             if (document.exists()) {
+              firestore
+                  .collection("products")
+                  .document(UPC)
+                  .update("viewedBy", FieldValue.arrayUnion(FirebaseUtil.getAuth().getCurrentUser().getUid()));
+
               Product product = document.toObject(Product.class);
               Intent intent = new Intent(this, DisplayItem.class);
               intent.putExtra("upc", document.getId());
               intent.putExtra("activity", "scanner");
               intent.putExtra("category", product.getCategoryId());
-              intent.putExtra("name", product.getName());
+              intent.putExtra("prodName", product.getName());
               startActivity(intent);
             } else {
               // product doesn't exists in the database
@@ -89,6 +94,10 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
             Log.d(TAG, "Failed with: ", task.getException());
           }
         });
+    firestore
+        .collection("users")
+        .document(FirebaseUtil.getAuth().getCurrentUser().getUid())
+        .update("recentlyViewed", FieldValue.arrayUnion(UPC));
   }
 
   @Override
@@ -104,7 +113,7 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
     confirm.setOnClickListener(v -> {
       String UPC_input = String.valueOf(barcode.getText()).replaceAll("^0+", "");
       Log.d("changed result", UPC);
-      turnToDisOrAdd(UPC_input);
+      displayOrAddItem(UPC_input);
     });
 
     Button dismiss = popupConfirmBarcodeView.findViewById(R.id.DismissConfirmBarcode);

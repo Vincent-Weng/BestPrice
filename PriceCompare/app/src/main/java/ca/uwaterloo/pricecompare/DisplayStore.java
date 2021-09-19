@@ -81,7 +81,7 @@ public class DisplayStore extends AppCompatActivity {
                                       DisplayItem.class);
                                   intent.putExtra("upc", itemAtPosition.get("UPC"));
                                   intent.putExtra("activity", "scanner");
-                                  intent.putExtra("name", itemAtPosition.get("name"));
+                                  intent.putExtra("prodName", itemAtPosition.get("name"));
                                   intent.putExtra("category", itemAtPosition.get("category"));
                                   startActivity(intent);
                                 });

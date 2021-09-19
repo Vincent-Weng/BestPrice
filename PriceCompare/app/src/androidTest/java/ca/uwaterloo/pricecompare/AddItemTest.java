@@ -41,7 +41,7 @@ public class AddItemTest {
 
     //start Display
     private void startAddItem(String UPC) throws InterruptedException {
-        intentsTestRule.getActivity().turnToDisOrAdd(UPC);
+        intentsTestRule.getActivity().displayOrAddItem(UPC);
     }
 
 

@@ -3,6 +3,7 @@ package ca.uwaterloo.pricecompare;
 import android.content.Intent;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,10 +21,14 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import ca.uwaterloo.pricecompare.models.Store;
+import ca.uwaterloo.pricecompare.models.User;
 import ca.uwaterloo.pricecompare.util.FirebaseUtil;
 import ca.uwaterloo.pricecompare.util.StoreCache;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiresApi(api = VERSION_CODES.N)
@@ -38,6 +43,22 @@ public class MainActivity extends AppCompatActivity {
         signInButton.setVisible(false);
         MenuItem signOutOption = menu.findItem(R.id.action_sign_out);
         signOutOption.setVisible(true);
+        FirebaseUtil.getMsg().getToken()
+        .addOnCompleteListener(task -> {
+          if (!task.isSuccessful()) {
+            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+            return;
+          }
+
+          // Get new FCM registration token
+          String token = task.getResult();
+
+          FirebaseUtil.getFirestore()
+              .collection("users")
+              .document(FirebaseUtil.getAuth().getCurrentUser().getUid())
+              .set(new User(new ArrayList<>(), token));
+        });
+
         StoreCache.getStoreCache().init(stores -> {
           StoreAdapter adapter = new StoreAdapter(stores);
           RecyclerView recyclerView = findViewById(R.id.recycler_view);
