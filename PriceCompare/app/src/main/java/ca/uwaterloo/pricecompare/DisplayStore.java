@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import ca.uwaterloo.pricecompare.models.Item;
 import ca.uwaterloo.pricecompare.models.Product;
@@ -14,6 +15,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.FirebaseFirestoreException.Code;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +81,7 @@ public class DisplayStore extends AppCompatActivity {
                                       DisplayItem.class);
                                   intent.putExtra("upc", itemAtPosition.get("UPC"));
                                   intent.putExtra("activity", "scanner");
-                                  intent.putExtra("name", itemAtPosition.get("name"));
+                                  intent.putExtra("prodName", itemAtPosition.get("name"));
                                   intent.putExtra("category", itemAtPosition.get("category"));
                                   startActivity(intent);
                                 });
@@ -91,7 +94,10 @@ public class DisplayStore extends AppCompatActivity {
             }
           } else {
             Log.d(TAG, "Error getting documents: ", t1.getException());
-          }
+            if (t1.getException() instanceof FirebaseFirestoreException
+                && ((FirebaseFirestoreException) t1.getException()).getCode() == Code.PERMISSION_DENIED) {
+              Toast.makeText(getBaseContext(), "Please sign-in first!", Toast.LENGTH_SHORT).show();
+            }           }
         });
   }
 

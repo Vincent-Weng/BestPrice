@@ -15,9 +15,23 @@
  */
 package ca.uwaterloo.pricecompare.util;
 
+import static android.app.Activity.RESULT_OK;
+
+import android.content.Intent;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import ca.uwaterloo.pricecompare.R;
 import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.AuthUI.IdpConfig;
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
+import com.firebase.ui.auth.IdpResponse;
+import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Utility class for initializing Firebase services
@@ -27,6 +41,7 @@ public class FirebaseUtil {
     private static FirebaseFirestore FIRESTORE;
     private static FirebaseAuth AUTH;
     private static AuthUI AUTH_UI;
+    private static FirebaseMessaging MSG;
 
     public static FirebaseFirestore getFirestore() {
         if (FIRESTORE == null) {
@@ -52,4 +67,26 @@ public class FirebaseUtil {
         return AUTH_UI;
     }
 
+    public static FirebaseMessaging getMsg() {
+        if (MSG == null) {
+            MSG = FirebaseMessaging.getInstance();
+        }
+
+        return MSG;
+    }
+
+    public static void startSignIn(ActivityResultLauncher<Intent> signInLauncher) {
+        List<IdpConfig> providers = Arrays.asList(
+            new AuthUI.IdpConfig.EmailBuilder().build(),
+            new AuthUI.IdpConfig.GoogleBuilder().build());
+
+        Intent signInIntent = FirebaseUtil.getAuthUI()
+            .createSignInIntentBuilder()
+            .setAvailableProviders(providers)
+            .setLogo(R.drawable.ic_launcher)
+            .setTheme(R.style.AppTheme)
+            .build();
+
+        signInLauncher.launch(signInIntent);
+    }
 }

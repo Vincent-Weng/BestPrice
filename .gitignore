@@ -1,2 +1,4 @@
 .DS_Store
 PriceCompare/.idea/
+PriceCompare/app/node_modules
+PriceCompare/app/functions/package-lock.json

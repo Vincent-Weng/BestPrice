@@ -32,7 +32,7 @@ public class DisplayItem extends AppCompatActivity {
   private ImageView image;
   private FirebaseFirestore firestore;
 
-  public void displayStore(String upc) {
+  public void displayStore(String upc, String category, String prodName) {
 
     View popupStoreView = View.inflate(this, R.layout.popup_store_display_window, null);
     LinearLayout storeScrollView = popupStoreView.findViewById(R.id.storeDisplayScrollLayout);
@@ -75,6 +75,8 @@ public class DisplayItem extends AppCompatActivity {
         intent.putExtra("upc", upc);
         intent.putExtra("activity", "display");
         intent.putExtra("store", store.getName());
+        intent.putExtra("category", category);
+        intent.putExtra("prodName", prodName);
         startActivity(intent);
       });
       table.addView(storeNameText);
@@ -164,8 +166,9 @@ public class DisplayItem extends AppCompatActivity {
         image.setImageResource(R.drawable.wellness);
         break;
     }
+    String prodName = intent.getStringExtra("prodName");
     EditText textName = findViewById(R.id.DisplayProductName);
-    textName.setText(intent.getStringExtra("name"));
+    textName.setText(prodName);
 
     // show best price
     firestore
@@ -196,7 +199,7 @@ public class DisplayItem extends AppCompatActivity {
         });
     //View all stores
     Button displayStoreButton = findViewById(R.id.display_store);
-    displayStoreButton.setOnClickListener(v -> displayStore(UPC));
+    displayStoreButton.setOnClickListener(v -> displayStore(UPC, category, prodName));
   }
 
   @Override
